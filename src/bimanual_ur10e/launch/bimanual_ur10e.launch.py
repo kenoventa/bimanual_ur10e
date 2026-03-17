@@ -1,104 +1,66 @@
 #!/usr/bin/env python3
 """
-Launch file for the bimanual UR10e setup.
+Master launch file for bimanual UR10e.
 
-Starts:
-  - robot_state_publisher with the dual-robot URDF
-  - joint_state_publisher (merges /robot1/joint_states and /robot2/joint_states)
-  - RViz2 with the pre-configured bimanual display
+This file documents the available launch modes. Choose the appropriate mode for your use case:
+
+OFFLINE MODE (recommended for testing without robots):
+========================================================
+Launch the offline mode with rosbag playback:
+  ros2 launch bimanual_ur10e offline.launch.py
+
+Then in another terminal, replay a rosbag:
+  ./scripts/replay_rosbag.sh /path/to/rosbag.mcap
+
+Features:
+  - No robot hardware required
+  - Displays both UR10e robots with rosbag data
+  - Uses simulated time from rosbag (use_sim_time=true)
+  - Includes joint_state_publisher_gui for visualization
+
+
+ONLINE MODE (for real robot operation):
+=======================================
+Launch the online mode when robots are connected:
+  ros2 launch bimanual_ur10e online.launch.py \\
+    robot1_ip:=192.168.1.100 \\
+    robot2_ip:=192.168.1.101
+
+Optional arguments:
+  robot1_ip     : IP address of first UR10e (default: 192.168.1.100)
+  robot2_ip     : IP address of second UR10e (default: 192.168.1.101)
+  use_gui       : Show joint_state_publisher_gui (default: true)
+  rviz_config   : Path to RViz config file
+
+Features:
+  - Connects to real UR10e robots via drivers
+  - Subscribes to real-time joint states
+  - Displays both robots synchronized with hardware
+  - Uses real time (use_sim_time=false)
+
+
+URDF AND COORDINATE FRAMES:
+==========================
+Both modes use the same dual-UR10e URDF:
+  - World frame: "world" (common reference)
+  - Robot 1: Offset -0.5 m along X, namespace "robot1_"
+  - Robot 2: Offset +0.5 m along X, mirrored 180° around Z, namespace "robot2_"
+
+All links and joints are namespaced per robot:
+  - robot1_base, robot1_shoulder_link, robot1_wrist_3_link, etc.
+  - robot2_base, robot2_shoulder_link, robot2_wrist_3_link, etc.
+
+Joint state topics:
+  - /robot1/joint_states (subscribed by aggregator)
+  - /robot2/joint_states (subscribed by aggregator)
+  - /joint_states (published by aggregator for robot_state_publisher)
 """
-import os
 
-from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
-from launch.conditions import IfCondition, UnlessCondition
-from launch.substitutions import Command, FindExecutable, LaunchConfiguration
-from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    pkg_share = get_package_share_directory("bimanual_ur10e")
+    # This is a documentation file. Users should launch offline.launch.py or online.launch.py directly.
+    # Returning empty LaunchDescription to show usage info.
+    return LaunchDescription([])
 
-    # ---------- arguments ----------
-    use_gui_arg = DeclareLaunchArgument(
-        "use_gui",
-        default_value="true",
-        description="Start the joint_state_publisher_gui instead of the headless one",
-    )
-    use_gui = LaunchConfiguration("use_gui")
-
-    rviz_config_arg = DeclareLaunchArgument(
-        "rviz_config",
-        default_value=os.path.join(pkg_share, "config", "bimanual_ur10e.rviz"),
-        description="Full path to the RViz config file",
-    )
-    rviz_config = LaunchConfiguration("rviz_config")
-
-    # ---------- URDF via xacro ----------
-    xacro_file = os.path.join(pkg_share, "urdf", "bimanual_ur10e.urdf.xacro")
-    robot_description = Command([FindExecutable(name="xacro"), " ", xacro_file])
-
-    # ---------- nodes ----------
-    robot_state_publisher_node = Node(
-        package="robot_state_publisher",
-        executable="robot_state_publisher",
-        name="robot_state_publisher",
-        output="screen",
-        parameters=[{"robot_description": robot_description, "use_sim_time": False}],
-    )
-
-    # Aggregate joint states from both robots into /joint_states so that
-    # robot_state_publisher receives a single combined message.
-    joint_state_publisher_node = Node(
-        package="joint_state_publisher",
-        executable="joint_state_publisher",
-        name="joint_state_publisher",
-        output="screen",
-        condition=UnlessCondition(use_gui),
-        parameters=[
-            {
-                "source_list": [
-                    "/robot1/joint_states",
-                    "/robot2/joint_states",
-                ],
-                "rate": 50,
-            }
-        ],
-    )
-
-    joint_state_publisher_gui_node = Node(
-        package="joint_state_publisher_gui",
-        executable="joint_state_publisher_gui",
-        name="joint_state_publisher_gui",
-        output="screen",
-        condition=IfCondition(use_gui),
-        parameters=[
-            {
-                "source_list": [
-                    "/robot1/joint_states",
-                    "/robot2/joint_states",
-                ],
-                "rate": 50,
-            }
-        ],
-    )
-
-    rviz_node = Node(
-        package="rviz2",
-        executable="rviz2",
-        name="rviz2",
-        output="screen",
-        arguments=["-d", rviz_config],
-    )
-
-    return LaunchDescription(
-        [
-            use_gui_arg,
-            rviz_config_arg,
-            robot_state_publisher_node,
-            joint_state_publisher_node,
-            joint_state_publisher_gui_node,
-            rviz_node,
-        ]
-    )
