@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="bimanual_ur10e">
+
+  <!--
+    Dual UR10e URDF/Xacro
+    ======================
+    Includes the upstream ur_description macro twice – once for the left arm
+    (robot1) and once for the right arm (robot2).
+
+    Coordinate convention
+    ---------------------
+    * Both arms are mounted on the "world" link.
+    * robot1 is offset -0.5 m along X (left side, facing +X).
+    * robot2 is offset +0.5 m along X (right side, rotated 180° around Z so
+      both tool-tips face inward toward the workspace centre).
+
+    Xacro math constant ${pi} ≈ 3.14159265358979 is used for the 180° rotation.
+  -->
+
+  <xacro:include filename="$(find ur_description)/urdf/ur_macro.xacro"/>
+
+  <!-- Shared world link -->
+  <link name="world"/>
+
+  <!-- ===== Robot 1 – left arm ===== -->
+  <xacro:ur_robot
+    name="robot1"
+    tf_prefix="robot1_"
+    parent="world"
+    ur_type="ur10e"
+    joint_limits_parameters_file="$(find ur_description)/config/ur10e/joint_limits.yaml"
+    kinematics_parameters_file="$(find ur_description)/config/ur10e/default_kinematics.yaml"
+    physical_parameters_file="$(find ur_description)/config/ur10e/physical_parameters.yaml"
+    visual_parameters_file="$(find ur_description)/config/ur10e/visual_parameters.yaml"
+    use_fake_hardware="true"
+    fake_sensor_commands="false"
+    sim_gazebo="false"
+    sim_ignition="false"
+    headless_mode="false">
+    <origin xyz="-0.5 0.0 0.0" rpy="0 0 0"/>
+  </xacro:ur_robot>
+
+  <!-- ===== Robot 2 – right arm (mirrored 180° around Z) ===== -->
+  <xacro:ur_robot
+    name="robot2"
+    tf_prefix="robot2_"
+    parent="world"
+    ur_type="ur10e"
+    joint_limits_parameters_file="$(find ur_description)/config/ur10e/joint_limits.yaml"
+    kinematics_parameters_file="$(find ur_description)/config/ur10e/default_kinematics.yaml"
+    physical_parameters_file="$(find ur_description)/config/ur10e/physical_parameters.yaml"
+    visual_parameters_file="$(find ur_description)/config/ur10e/visual_parameters.yaml"
+    use_fake_hardware="true"
+    fake_sensor_commands="false"
+    sim_gazebo="false"
+    sim_ignition="false"
+    headless_mode="false">
+    <origin xyz="0.5 0.0 0.0" rpy="0 0 ${pi}"/>
+  </xacro:ur_robot>
+
+</robot>
+
