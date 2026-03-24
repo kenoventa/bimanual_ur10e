@@ -2,10 +2,10 @@
 <robot xmlns:xacro="http://wiki.ros.org/xacro" name="bimanual_ur10e">
 
   <!--
-    Dual UR10e URDF/Xacro
-    ======================
+    Dual UR10e URDF/Xacro with Robotiq 2F140 Grippers
+    ====================================================
     Includes the upstream ur_description macro twice: once for the left arm
-    (robot1) and once for the right arm (robot2).
+    (robot1) and once for the right arm (robot2), each with a Robotiq 2F140 gripper.
 
     Coordinate convention
     * Both arms are mounted on the "world" link.
@@ -13,10 +13,17 @@
     * robot2 is offset +0.5 m along X (right side, rotated 180 degrees around Z so
       both tool-tips face inward toward the workspace centre).
 
+    Gripper Configuration
+    * gripper1 attached to robot1_tool0 via UR-to-Robotiq adapter
+    * gripper2 attached to robot2_tool0 via UR-to-Robotiq adapter
+    * Each gripper communicates via separate serial port (/dev/ttyUSB0, /dev/ttyUSB1)
+
     Xacro math constant ${pi} approx 3.14159265358979 is used for 180 degree rotation.
   -->
 
   <xacro:include filename="$(find ur_description)/urdf/ur_macro.xacro"/>
+  <xacro:include filename="$(find robotiq_description)/urdf/robotiq_2f_140_macro.urdf.xacro"/>
+  <xacro:include filename="$(find robotiq_description)/urdf/ur_to_robotiq_adapter.urdf.xacro"/>
 
   <!-- Shared world link -->
   <link name="world"/>
@@ -30,16 +37,16 @@
     kinematics_parameters_file="$(find ur_description)/config/ur10e/default_kinematics.yaml"
     physical_parameters_file="$(find ur_description)/config/ur10e/physical_parameters.yaml"
     visual_parameters_file="$(find ur_description)/config/ur10e/visual_parameters.yaml"
-    use_fake_hardware="true"
+    use_fake_hardware="false"
     fake_sensor_commands="false"
     sim_gazebo="false"
     sim_ignition="false"
     headless_mode="false">
-    <origin xyz="-1.0 0.0 0.0" rpy="0 0 0"/>
+    <origin xyz="0.7 0.0 0.0" rpy="0 0 ${-pi/3}"/>
   </xacro:ur_robot>
 
-  <!-- ===== Robot 2 - right arm (mirrored 180degrees around Z) ===== -->
-  <xacro:ur_robot
+  <!-- ===== Robot 2 - RIGHT arm ===== -->
+  <xacro:ur_robot 
     name="robot2"
     tf_prefix="robot2_"
     parent="world"
@@ -47,13 +54,42 @@
     kinematics_parameters_file="$(find ur_description)/config/ur10e/default_kinematics.yaml"
     physical_parameters_file="$(find ur_description)/config/ur10e/physical_parameters.yaml"
     visual_parameters_file="$(find ur_description)/config/ur10e/visual_parameters.yaml"
-    use_fake_hardware="true"
+    use_fake_hardware="false"
     fake_sensor_commands="false"
     sim_gazebo="false"
     sim_ignition="false"
     headless_mode="false">
-    <origin xyz="0.0 0.0 0.0" rpy="0 0 ${pi}"/>
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 ${1.25*pi}"/>
   </xacro:ur_robot>
 
+  <!-- ===== ROBOT 1 GRIPPER ===== -->
+  <!-- UR to Robotiq Adapter for Robot1 -->
+  <xacro:ur_to_robotiq prefix="gripper1_" parent="robot1_tool0" child="gripper1_tool0_adapter"/>
+
+  <!-- Robotiq 2F140 Gripper on Robot1 -->
+  <xacro:robotiq_gripper
+    name="gripper1"
+    prefix="gripper1_"
+    parent="gripper1_tool0_adapter"
+    use_fake_hardware="false"
+    com_port="/dev/ttyUSB0">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </xacro:robotiq_gripper>
+
+  <!-- ===== ROBOT 2 GRIPPER ===== -->
+  <!-- UR to Robotiq Adapter for Robot2 -->
+  <xacro:ur_to_robotiq prefix="gripper2_" parent="robot2_tool0" child="gripper2_tool0_adapter"/>
+
+  <!-- Robotiq 2F140 Gripper on Robot2 -->
+  <xacro:robotiq_gripper
+    name="gripper2"
+    prefix="gripper2_"
+    parent="gripper2_tool0_adapter"
+    use_fake_hardware="false"
+    com_port="/dev/ttyUSB1">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </xacro:robotiq_gripper>
+
+  
 </robot>
 

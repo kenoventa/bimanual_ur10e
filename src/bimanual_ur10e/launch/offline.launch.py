@@ -1,20 +1,31 @@
 #!/usr/bin/env python3
 """
-Offline mode launch file for bimanual UR10e with rosbag playback.
+Offline mode launch file for bimanual UR10e with rosbag playback - WITH GRIPPERS.
 
 Plays back recorded joint states from a rosbag file and displays them in RViz.
 No robot drivers or physical hardware required.
 
+Includes dual Robotiq 2F140 grippers attached to both end effectors.
+Gripper visualization and states are aggregated from rosbag or simulated.
+
 Starts:
-  - robot_state_publisher with dual-robot URDF
-  - RViz2 for visualization
-  - Joint state aggregator
+  - robot_state_publisher with dual-robot URDF (includes grippers)
+  - RViz2 for visualization (shows arms + grippers)
+  - Joint state aggregator (arm joints from /robot{1,2}/joint_states)
+  - Gripper state aggregator (gripper joints from rosbag or simulator)
+  - Gripper state publisher (simulated gripper states for testing)
   - Optional: rosbag player (launched manually or via replay_rosbag.sh script)
 
 To use:
   1. Start this launch file: ros2 launch bimanual_ur10e offline.launch.py
   2. In another terminal, play the rosbag: ./scripts/replay_rosbag.sh path/to/rosbag
-  3. Watch the robots animate in RViz based on recorded data
+  3. Watch the robots AND grippers animate in RViz based on recorded data
+
+Gripper Configuration:
+  - Gripper 1: Attached to robot1_tool0 (left arm end effector)
+  - Gripper 2: Attached to robot2_tool0 (right arm end effector)
+  - Joint names: gripper{1,2}_finger_{left,right}_joint
+  - Visualized via RViz with gripper meshes
 """
 import os
 
@@ -54,6 +65,7 @@ def generate_launch_description():
 
     # ---------- robot_state_publisher ----------
     # Publishes TF transforms based on URDF and joint states from rosbag
+    # URDF includes: both UR10e arms + Robotiq 2F140 grippers
     robot_state_publisher_node = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
@@ -68,8 +80,9 @@ def generate_launch_description():
     )
 
     # ---------- joint_state_publisher (aggregator) ----------
-    # Merges joint states from both robots into /joint_states
-    # In offline mode, these come from rosbag playback
+    # Merges arm joint states from both robots into /joint_states
+    # Sources: /robot1/joint_states and /robot2/joint_states (from rosbag)
+
     joint_state_publisher_node = Node(
         package="joint_state_publisher",
         executable="joint_state_publisher",

@@ -27,6 +27,8 @@ ros2 bag record \
   --storage sqlite3 \
   /robot1/joint_states \
   /robot2/joint_states \
+  /robot1/gripper/joint_states \
+  /robot2/gripper/joint_states \
   /joint_states \
   /tf \
   /tf_static

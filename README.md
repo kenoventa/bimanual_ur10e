@@ -41,7 +41,7 @@ bimanual_ur10e/
 │   │
 │   ├── launch/
 │   │   ├── offline.launch.py                # Rosbag playback launcher
-│   │   ├── online.launch.py                 # Real robot launcher
+│   │   ├── online.launch.py                 # Real robot launcher (with grippers)
 │   │   ├── bimanual_ur10e.launch.py         # Mode selection guide
 │   │   └── replay.launch.py                 # Legacy replay launcher
 │   │
@@ -52,7 +52,7 @@ bimanual_ur10e/
 │   │   └── replay_bag.sh                    # Legacy replay script
 │   │
 │   ├── urdf/
-│   │   └── bimanual_ur10e.urdf.xacro        # Dual-robot URDF definition
+│   │   └── bimanual_ur10e.urdf.xacro        # Dual-robot URDF (includes Robotiq grippers)
 │   │
 │   ├── config/
 │   │   └── bimanual_ur10e.rviz              # RViz2 configuration
@@ -91,6 +91,28 @@ sudo apt install -y \
   ros-humble-rosbag2 \
   ros-humble-rosbag2-storage-default-plugins
 ```
+
+### Gripper Support (Robotiq 2F140)
+
+This package includes **Robotiq 2F140 grippers** on both robot end effectors.
+
+**Additional dependencies for gripper hardware control:**
+```bash
+sudo apt install -y \
+  libserial-dev
+```
+
+**Gripper Configuration:**
+- Robot 1 Gripper: `/dev/ttyUSB0` (update if different)
+- Robot 2 Gripper: `/dev/ttyUSB1` (update if different)
+- Baud Rate: 115200
+
+**Gripper Joint Names:**
+- `gripper1_finger_left_joint` / `gripper1_finger_right_joint`
+- `gripper2_finger_left_joint` / `gripper2_finger_right_joint`
+
+**To update serial ports if different:**
+Edit `src/bimanual_ur10e/urdf/bimanual_ur10e.urdf.xacro` and change `com_port` parameters for each gripper macro.
 
 ---
 
@@ -158,11 +180,50 @@ ros2 launch bimanual_ur10e online.launch.py \
 - Connects to physical UR10e robots via drivers
 - Live joint state updates
 - TF transforms synchronized with hardware
+- Gripper meshes and joint states visualized in RViz
 
 **Prerequisites for Online Mode:**
 - Both UR10e robots must be accessible on the network
 - UR ROS 2 drivers must be installed and configured
 - Network connectivity to both robot IP addresses
+- For gripper control: USB serial ports must be accessible (permissions may be needed: `sudo chmod 666 /dev/ttyUSB*`)
+
+---
+
+### Gripper Usage
+
+**Offline playback with grippers:**
+Grippers are automatically included in the URDF. When replaying a rosbag with gripper states, they will animate in RViz.
+
+```bash
+# Terminal 1: Launch offline
+ros2 launch bimanual_ur10e offline.launch.py use_gui:=false
+
+# Terminal 2: Play rosbag (including gripper states if recorded)
+ros2 bag play recorded_motion.mcap --clock
+```
+
+**Online control with grippers:**
+When launching online mode, gripper messages come from the gripper hardware via USB serial ports.
+
+```bash
+# Verify gripper connectivity
+ls /dev/ttyUSB*
+
+# Check gripper status
+ros2 topic echo /robot1_gripper_state  # If gripper driver publishes states
+```
+
+**Recording gripper motion:**
+Record gripper states along with arm states for offline playback.
+
+```bash
+ros2 bag record \
+  /joint_states \
+  /robot1/gripper/joint_states \
+  /robot2/gripper/joint_states \
+  -o bimanual_motion_with_grippers.mcap
+```
 
 ---
 
@@ -208,12 +269,12 @@ ros2 launch bimanual_ur10e online.launch.py \
 
 ## Coordinate Frame Convention
 
-The dual-UR10e URDF defines:
+The dual-UR10e URDF defines two robots with integrated Robotiq 2F140 grippers:
 
-| Robot | Base Offset | Orientation | TF Prefix |
-|---|---|---|---|
-| robot1 | (-0.5, 0, 0) m | Facing +X | `robot1_` |
-| robot2 | (+0.5, 0, 0) m | Rotated 180° around Z | `robot2_` |
+| Robot | Base Offset | Orientation | TF Prefix | Gripper |
+|---|---|---|---|---|
+| robot1 | (-0.5, 0, 0) m | Facing +X | `robot1_` | gripper1 @ robot1_tool0 |
+| robot2 | (+0.5, 0, 0) m | Rotated 180° around Z | `robot2_` | gripper2 @ robot2_tool0 |
 
 Both robots share the `world` reference frame.
 
@@ -221,15 +282,23 @@ Both robots share the `world` reference frame.
 ```
 world
 ├── robot1_base
-│   └── [all robot1 links and joints]
+│   └── [robot1 arm chain]
+│       └── robot1_tool0
+│           └── gripper1_base_link
+│               └── [gripper finger links]
 └── robot2_base
-    └── [all robot2 links and joints]
+    └── [robot2 arm chain]
+        └── robot2_tool0
+            └── gripper2_base_link
+                └── [gripper finger links]
 ```
 
 **Joint state topics:**
-- `/robot1/joint_states` - Input from driver or rosbag
-- `/robot2/joint_states` - Input from driver or rosbag
-- `/joint_states` - Aggregated output (consumed by robot_state_publisher)
+- `/robot1/joint_states` - Arm joints (input from driver or rosbag)
+- `/robot2/joint_states` - Arm joints (input from driver or rosbag)
+- `/robot1/gripper/joint_states` - Gripper joints (input from hardware or rosbag)
+- `/robot2/gripper/joint_states` - Gripper joints (input from hardware or rosbag)
+- `/joint_states` - Aggregated arm + gripper output
 
 ---
 
@@ -262,6 +331,27 @@ world
 ros2 run tf2_tools view_frames
 # Opens frames.pdf showing the TF tree
 ```
+
+### Gripper Issues
+
+**Gripper meshes not visible in RViz:**
+- Verify URDF was updated with gripper macros: `xacro src/bimanual_ur10e/urdf/bimanual_ur10e.urdf.xacro | grep -i gripper`
+- Check robot_state_publisher is running and loaded the full URDF
+- In RViz, ensure "Robot Model" display is enabled
+
+**Gripper not responding to commands (Online mode):**
+- Check serial ports are detected: `ls /dev/ttyUSB*`
+- Verify USB permissions: `sudo chmod 666 /dev/ttyUSB0 /dev/ttyUSB1`
+- Check gripper serial port configuration in URDF matches actual ports
+- Verify gripper hardware is powered and connected
+
+**Gripper states not updating in rosbag playback (Offline mode):**
+- Verify rosbag contains gripper state topics:
+  ```bash
+  ros2 bag info your_rosbag.mcap | grep gripper
+  ```
+- If rosbag lacks gripper states, they will be simulated (gripper stays static)
+- For full gripper animation, record gripper states during online motion
 
 ---
 

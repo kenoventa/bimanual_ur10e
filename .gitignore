@@ -18,3 +18,12 @@ __pycache__/
 # OS artifacts
 .DS_Store
 Thumbs.db
+
+output.log
+output3.log
+output4.log
+output5.log
+output6.log
+
+.gitgnore
+
