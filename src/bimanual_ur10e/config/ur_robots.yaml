@@ -1,0 +1,32 @@
+# UR Robots Configuration
+
+robots:
+  robot1:
+    name: "UR10e Left Arm"
+    ip: "192.168.1.10"  
+    frequency: 500       # RTDE frequency (Hz)
+    
+  robot2:
+    name: "UR10e Right Arm"
+    ip: "192.168.1.20"  
+    frequency: 500
+
+# Joint configurations (optional)
+poses:
+  home: [0.0, -1.5708, 0.0, -1.5708, 0.0, 0.0]
+  
+  pregrasp: [0.0, -1.5708, 0.0, -1.5708, 0.0, 0.0]
+  
+  custom:
+    shoulder_pan: 0.0
+    shoulder_lift: -1.5708  # -90 degrees
+    elbow: 0.0
+    wrist1: -1.5708         # -90 degrees
+    wrist2: 0.0
+    wrist3: 0.0
+
+# Motion parameters
+motion:
+  speed: 1.0              # rad/s
+  acceleration: 1.2       # rad/s²
+  default_duration: 5.0   # seconds

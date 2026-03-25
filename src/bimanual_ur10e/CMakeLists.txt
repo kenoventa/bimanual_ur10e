@@ -14,6 +14,8 @@ install(
   PROGRAMS
     scripts/joint_state_publisher.py
     scripts/joint_state_republisher.py
+    scripts/move_to_pregrasp.py
+    scripts/move_to_pregrasp_rtde.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

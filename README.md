@@ -92,15 +92,21 @@ sudo apt install -y \
   ros-humble-rosbag2-storage-default-plugins
 ```
 
+### Online Mode Dependencies (RTDE Robot Control)
+
+For direct UR robot control via RTDE (Real-Time Data Exchange):
+
+```bash
+pip install ur-rtde pyyaml
+```
+
+This enables scripts to move robots to specific joint angles without ROS 2 drivers.
+
 ### Gripper Support (Robotiq 2F140)
 
-This package includes **Robotiq 2F140 grippers** on both robot end effectors.
+This package includes **Robotiq 2F140 grippers** on both robot end effectors. They are controlled via the UR10e robots (integrated via Modbus/Ethernet) and teleoperated through GELLO.
 
-**Additional dependencies for gripper hardware control:**
-```bash
-sudo apt install -y \
-  libserial-dev
-```
+**No additional dependencies required** - gripper support is fully included in the URDF and automatically published by the UR driver.
 
 **Gripper Configuration:**
 - Robot 1 Gripper: `/dev/ttyUSB0` (update if different)
@@ -130,31 +136,62 @@ source install/setup.bash
 
 ### Offline Mode - Rosbag Playback
 
-**Use Case:** Testing, demonstrations, development (no hardware required)
+**Use Case:** Testing, demonstrations, trajectory playback (no hardware required)
 
-**Launch the offline stack:**
+**Option 1: Record trajectory manually via GUI**
+
+Terminal 1 - Start offline launcher:
 ```bash
-ros2 launch bimanual_ur10e offline.launch.py
+ros2 launch bimanual_ur10e offline.launch.py use_gui:=true
 ```
 
-**In another terminal, play a rosbag:**
+Terminal 2 - Record joint states using **either method**:
+
+**Method A: Using helper script (recommended)**
 ```bash
-./scripts/replay_rosbag.sh /path/to/rosbag.mcap
+bash scripts/record_bag.sh
+```
+This creates a timestamped folder like `data/bag_20260325_143025/` and starts recording automatically.
+
+**Method B: Direct ROS 2 command**
+```bash
+ros2 bag record /joint_states -o data/my_motion.mcap
 ```
 
-**Adjust playback speed (optional):**
+Now drag the joint sliders in the GUI to create a trajectory. Stop recording (Ctrl+C) when done.
+
+**Option 2: Playback recorded rosbag**
+
+Terminal 1 - Launch offline (disable aggregator to avoid conflicts):
 ```bash
-./scripts/replay_rosbag.sh /path/to/rosbag.mcap --rate 2.0
+ros2 launch bimanual_ur10e offline.launch.py use_gui:=false enable_aggregator:=false
 ```
+
+Terminal 2 - Play rosbag using **either method**:
+
+**Method A: Using helper script (recommended)**
+```bash
+bash scripts/replay_rosbag.sh data/my_motion.mcap
+bash scripts/replay_rosbag.sh data/my_motion.mcap --rate 2.0  # Optional: custom playback speed
+```
+
+**Method B: Direct ROS 2 command**
+```bash
+ros2 bag play data/my_motion.mcap --clock
+ros2 bag play data/my_motion.mcap --clock --rate 2.0  # Optional: custom playback speed
+```
+
+Robot will animate in RViz based on recorded trajectory.
 
 **Parameters:**
 - `use_gui` - Show joint_state_publisher GUI (default: true)
+- `enable_aggregator` - Enable joint state aggregator, disable for rosbag playback (default: true)
 - `rviz_config` - Custom RViz config file
 
-**Features:**
-- Uses simulated time from rosbag (`use_sim_time=true`)
-- No UR drivers or hardware needed
-- Perfect for testing and demonstrations
+**Notes:**
+- Initial RViz errors (missing TF/robot model) are normal—they resolve once rosbag starts publishing
+- To replay rosbag multiple times, restart the launcher between plays
+- The `--clock` flag is **required** for RViz to properly synchronize with rosbag timestamps
 
 ---
 
@@ -165,13 +202,13 @@ ros2 launch bimanual_ur10e offline.launch.py
 **Launch the online stack:**
 ```bash
 ros2 launch bimanual_ur10e online.launch.py \
-  robot1_ip:=192.168.1.100 \
-  robot2_ip:=192.168.1.101
+  robot1_ip:=192.168.1.10 \
+  robot2_ip:=192.168.1.20
 ```
 
 **Parameters:**
-- `robot1_ip` - IP address of first UR10e (default: 192.168.1.100)
-- `robot2_ip` - IP address of second UR10e (default: 192.168.1.101)
+- `robot1_ip` - IP address of first UR10e (default: 192.168.1.10)
+- `robot2_ip` - IP address of second UR10e (default: 192.168.1.20)
 - `use_gui` - Show joint_state_publisher GUI (default: true)
 - `rviz_config` - Custom RViz config file
 
@@ -190,79 +227,27 @@ ros2 launch bimanual_ur10e online.launch.py \
 
 ---
 
-### Gripper Usage
+**Offline playback with gripper states:**
 
-**Offline playback with grippers:**
-Grippers are automatically included in the URDF. When replaying a rosbag with gripper states, they will animate in RViz.
+If you have recorded a rosbag with gripper control:
 
 ```bash
 # Terminal 1: Launch offline
-ros2 launch bimanual_ur10e offline.launch.py use_gui:=false
-
-# Terminal 2: Play rosbag (including gripper states if recorded)
-ros2 bag play recorded_motion.mcap --clock
-```
-
-**Online control with grippers:**
-When launching online mode, gripper messages come from the gripper hardware via USB serial ports.
-
-```bash
-# Verify gripper connectivity
-ls /dev/ttyUSB*
-
-# Check gripper status
-ros2 topic echo /robot1_gripper_state  # If gripper driver publishes states
-```
-
-**Recording gripper motion:**
-Record gripper states along with arm states for offline playback.
-
-```bash
-ros2 bag record \
-  /joint_states \
-  /robot1/gripper/joint_states \
-  /robot2/gripper/joint_states \
-  -o bimanual_motion_with_grippers.mcap
-```
-
----
-
-## Workflow Examples
-
-### Record a Trajectory
-
-```bash
-# Start offline or online launcher
-ros2 launch bimanual_ur10e offline.launch.py  # or online.launch.py
-
-# In another terminal, record the rosbag
-ros2 bag record -a -o my_demo.mcap
-
-# Move the robots (manually via GUI or through your control program)
-
-# Stop recording (Ctrl+C)
-```
-
-### Replay Downloaded Trajectory
-
-```bash
-# Terminal 1: Start offline launcher
 ros2 launch bimanual_ur10e offline.launch.py
 
-# Terminal 2: Play the rosbag
-./scripts/replay_rosbag.sh my_demo.mcap
+# Terminal 2: Play rosbag with gripper states
+ros2 bag play recorded_gello_motion.mcap --clock
 ```
 
-### Real Robot Demo
+
+**Verify gripper states are being published:**
 
 ```bash
-# Terminal 1: Start online launcher with your robots
-ros2 launch bimanual_ur10e online.launch.py \
-  robot1_ip:=192.168.1.100 \
-  robot2_ip:=192.168.1.101
+# Check if gripper joint states are in the aggregated /joint_states topic
+ros2 topic echo /joint_states | grep gripper
 
-# Terminal 2: Run your control program
-# (robots will animate in RViz based on real joint states)
+# Or view the full joint state for robot 1
+ros2 topic echo /robot1/joint_states
 ```
 
 ---
@@ -302,98 +287,29 @@ world
 
 ---
 
-## Troubleshooting
+## Direct Robot Control (RTDE)
 
-### Issue: RViz doesn't show robots
-- **Offline:** Make sure rosbag playback is started in another terminal
-- **Online:** Verify robot IP addresses are correct and robots are online
-- **Both:** Check that robot_state_publisher is running: `ros2 node list | grep state_publisher`
+For moving robots to specific joint angles via RTDE protocol:
 
-### Issue: "Cannot connect to robot"
-- Verify network connectivity: `ping 192.168.1.100` (adjust IP)
-- Check that UR drivers are installed and configured
-- Confirm firewall allows ROS 2 communication
+**Setup:**
+1. Edit `config/ur_robots.yaml` with your robot IP addresses:
+   ```yaml
+   robots:
+     robot1:
+       ip: "192.168.1.10"
+     robot2:
+       ip: "192.168.1.20"
+   ```
 
-### Issue: Joint states not updating
-- **Offline:** Check rosbag contains required topics:
-  ```bash
-  ros2 bag info /path/to/rosbag.mcap | grep joint_states
-  ```
-- **Online:** Verify topics are publishing:
-  ```bash
-  ros2 topic echo /robot1/joint_states
-  ros2 topic echo /robot2/joint_states
-  ```
+2. Run the move script:
+   ```bash
+   python3 src/bimanual_ur10e/scripts/move_to_pregrasp_rtde.py --robot both --duration 5.0
+   ```
 
-### Issue: TF frames not available
-```bash
-# View available TF frames
-ros2 run tf2_tools view_frames
-# Opens frames.pdf showing the TF tree
-```
+**Options:**
+- `--robot` - Which robot(s): `1`, `2`, or `both` (default: both)
+- `--duration` - Motion time in seconds (default: 5.0)
+- `--config` - Custom config file path
 
-### Gripper Issues
-
-**Gripper meshes not visible in RViz:**
-- Verify URDF was updated with gripper macros: `xacro src/bimanual_ur10e/urdf/bimanual_ur10e.urdf.xacro | grep -i gripper`
-- Check robot_state_publisher is running and loaded the full URDF
-- In RViz, ensure "Robot Model" display is enabled
-
-**Gripper not responding to commands (Online mode):**
-- Check serial ports are detected: `ls /dev/ttyUSB*`
-- Verify USB permissions: `sudo chmod 666 /dev/ttyUSB0 /dev/ttyUSB1`
-- Check gripper serial port configuration in URDF matches actual ports
-- Verify gripper hardware is powered and connected
-
-**Gripper states not updating in rosbag playback (Offline mode):**
-- Verify rosbag contains gripper state topics:
-  ```bash
-  ros2 bag info your_rosbag.mcap | grep gripper
-  ```
-- If rosbag lacks gripper states, they will be simulated (gripper stays static)
-- For full gripper animation, record gripper states during online motion
 
 ---
-
-## Useful ROS 2 Commands
-
-```bash
-# List all active nodes
-ros2 node list
-
-# List all topics
-ros2 topic list
-
-# View topic content
-ros2 topic echo /robot1/joint_states
-
-# View ROS 2 parameters
-ros2 param list
-
-# View TF tree
-ros2 run tf2_tools view_frames
-
-# Record all topics to rosbag
-ros2 bag record -a -o output.mcap
-
-# Play rosbag with simulated time
-ros2 bag play output.mcap --clock
-
-# Get help for a launch file
-ros2 launch bimanual_ur10e offline.launch.py --show-args
-```
-
----
-
-## Support & Documentation
-
-- [ROS 2 Humble Documentation](https://docs.ros.org/en/humble/)
-- [UR Description Package](https://github.com/UniversalRobots/Universal_Robots_ROS2_Description)
-- [ROS 2 Launch Files](https://docs.ros.org/en/humble/How-To-Guides/launch-file-different-formats.html)
-- [ROS 2 TF2 Documentation](https://docs.ros.org/en/humble/Concepts/Intermediate/Tf2/Main.html)
-
----
-
-## License
-
-Apache-2.0

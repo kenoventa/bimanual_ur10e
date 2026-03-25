@@ -29,6 +29,8 @@ ros2 bag record \
   /robot2/joint_states \
   /robot1/gripper/joint_states \
   /robot2/gripper/joint_states \
+  /robot1/force_torque_sensor_broadcaster/wrench \
+  /robot2/force_torque_sensor_broadcaster/wrench \
   /joint_states \
   /tf \
   /tf_static

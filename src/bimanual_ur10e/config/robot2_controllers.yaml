@@ -8,8 +8,22 @@
       type: ur_controllers/GPIOController
     speed_scaling_state_broadcaster:
       type: ur_controllers/SpeedScalingStateBroadcaster
+    # force_torque_sensor_broadcaster:
+    #   type: force_torque_sensor_broadcaster/ForceTorqueSensorBroadcaster
     force_torque_sensor_broadcaster:
       type: force_torque_sensor_broadcaster/ForceTorqueSensorBroadcaster
+
+      sensor_name: robot2_tcp_fts_sensor
+
+      interface_names:
+        - force.x
+        - force.y
+        - force.z
+        - torque.x
+        - torque.y
+        - torque.z
+
+      frame_id: robot1_tool0
     tcp_pose_broadcaster:
       type: ur_controllers/TCPPoseBroadcaster
     ur_configuration_controller:

@@ -1,0 +1,10 @@
+# Python dependencies untuk online UR robot control
+
+# RTDE - Real-Time Data Exchange untuk UR robots
+ur-rtde>=1.5.0
+
+# YAML parsing untuk config files
+PyYAML>=6.0
+
+# ROS2 - biasanya sudah installed via apt
+# rclpy  # pip install rclpy (jika tidak via apt)

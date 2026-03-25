@@ -56,6 +56,13 @@ def generate_launch_description():
     )
     rviz_config = LaunchConfiguration("rviz_config")
 
+    enable_aggregator_arg = DeclareLaunchArgument(
+        "enable_aggregator",
+        default_value="true",
+        description="Enable joint state aggregator (disable for rosbag playback)",
+    )
+    enable_aggregator = LaunchConfiguration("enable_aggregator")
+
     # ---------- URDF via xacro ----------
     xacro_file = os.path.join(pkg_share, "urdf", "bimanual_ur10e.urdf.xacro")
     robot_description = ParameterValue(
@@ -88,7 +95,7 @@ def generate_launch_description():
         executable="joint_state_publisher",
         name="joint_state_publisher",
         output="screen",
-        condition=UnlessCondition(use_gui),
+        condition=IfCondition(enable_aggregator),
         parameters=[
             {
                 "source_list": [
@@ -96,6 +103,7 @@ def generate_launch_description():
                     "/robot2/joint_states",
                 ],
                 "rate": 50,
+                "use_sim_time": True,  # Sync with rosbag timestamps
             }
         ],
     )
@@ -113,6 +121,23 @@ def generate_launch_description():
                     "/robot2/joint_states",
                 ],
                 "rate": 50,
+                "use_mimic_joints": True,
+                "zeros": { #starting pose
+                    "robot1_shoulder_pan_joint": 0.0,
+                    "robot1_shoulder_lift_joint": -1.57,  # -90 degrees
+                    "robot1_elbow_joint": 1.57,           # 90 degrees
+                    "robot1_wrist_1_joint": 0.0,
+                    "robot1_wrist_2_joint": 0.0,
+                    "robot1_wrist_3_joint": 0.0,
+                    "gripper1_finger_joint": 0.0,
+                    "robot2_shoulder_pan_joint": 0.0,
+                    "robot2_shoulder_lift_joint": -1.57,  # -90
+                    "robot2_elbow_joint": 1.57,           # 90 degrees
+                    "robot2_wrist_1_joint": 0.0,
+                    "robot2_wrist_2_joint": 0.0,
+                    "robot2_wrist_3_joint": 0.0,
+                    "gripper2_finger_joint": 0.0,
+                }
             }
         ],
     )
@@ -137,6 +162,7 @@ def generate_launch_description():
         [
             use_gui_arg,
             rviz_config_arg,
+            enable_aggregator_arg,
             robot_state_publisher_node,
             joint_state_publisher_node,
             joint_state_publisher_gui_node,

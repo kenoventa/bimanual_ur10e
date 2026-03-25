@@ -226,10 +226,18 @@ def launch_setup(context, *args, **kwargs):
         name="joint_state_publisher",
         output="screen",
         parameters=[{
-            "source_list": ["/robot1/joint_states", "/robot2/joint_states"],
+            "source_list": [
+                "/robot1/joint_states",
+                "/robot2/joint_states",
+                # joint_state_publisher akan auto-compute SEMUA mimic joints
+                # (knuckle, inner finger, outer finger, pad) dari finger_joint position
+                "/gripper1/joint_state_broadcaster/joint_states",
+                "/gripper2/joint_state_broadcaster/joint_states",
+            ],
             "rate": 50,
         }],
     )
+    
 
     # ── joint_state_republisher ─────────────────────────────
     joint_state_republisher_robot1 = Node(
@@ -335,14 +343,94 @@ def launch_setup(context, *args, **kwargs):
         arguments=["-d", rviz_config],
     )
 
+    # ─── Gripper descriptions (dari standalone xacro) ────────────────────────────
+    gripper1_description = ParameterValue(
+        Command([
+            FindExecutable(name="xacro"), " ",
+            PathJoinSubstitution([
+                FindPackageShare("bimanual_ur10e"), "config", "gripper1_standalone.urdf.xacro"
+            ])
+        ]),
+        value_type=str,
+    )
+
+    gripper2_description = ParameterValue(
+        Command([
+            FindExecutable(name="xacro"), " ",
+            PathJoinSubstitution([
+                FindPackageShare("bimanual_ur10e"), "config", "gripper2_standalone.urdf.xacro"
+            ])
+        ]),
+        value_type=str,
+    )
+
+    # ─── Gripper 1 controller_manager ─────────────────────────────────────────────
+    # Dedicated CM untuk gripper1 (terpisah dari robot1 CM)
+    # Tidak pakai PushRosNamespace karena kita bisa set namespace langsung di Node
+    gripper1_cm = Node(
+        package="controller_manager",
+        executable="ros2_control_node",
+        namespace="gripper1",
+        parameters=[{"robot_description": gripper1_description}],
+        output="screen",
+    )
+
+    # Spawner: joint_state_broadcaster untuk gripper1
+    # Absolute path ke /gripper1/controller_manager agar tidak perlu remap
+    gripper1_jsb_spawner = TimerAction(
+        period=3.0,   # beri waktu CM start + USB init
+        actions=[
+            Node(
+                package="controller_manager",
+                executable="spawner",
+                arguments=[
+                    "joint_state_broadcaster",
+                    "--controller-manager", "/gripper1/controller_manager",
+                    "--controller-manager-timeout", "30",
+                ],
+                output="screen",
+            )
+        ]
+    )
+
+    # ─── Gripper 2 controller_manager ─────────────────────────────────────────────
+    gripper2_cm = Node(
+        package="controller_manager",
+        executable="ros2_control_node",
+        namespace="gripper2",
+        parameters=[{"robot_description": gripper2_description}],
+        output="screen",
+    )
+
+    gripper2_jsb_spawner = TimerAction(
+        period=3.0,
+        actions=[
+            Node(
+                package="controller_manager",
+                executable="spawner",
+                arguments=[
+                    "joint_state_broadcaster",
+                    "--controller-manager", "/gripper2/controller_manager",
+                    "--controller-manager-timeout", "30",
+                ],
+                output="screen",
+            )
+        ]
+    )
+    
+    
     return [
         robot_state_publisher_node,       # combined RSP → to /tf
         robot1_ur_driver,                 # robot1 group (TF + CM isolated)
-        robot2_ur_driver,                 # robot2 group (TF + CM isolated, delay 5s)
+        robot2_ur_driver,                 # robot2 group (TF + CM isolated, delay 2s)
         joint_state_republisher_robot1,   # /robot1/joint_state_broadcaster/state → /robot1/joint_states
         joint_state_republisher_robot2,   # /robot2/joint_state_broadcaster/state → /robot2/joint_states
         joint_state_publisher_node,       # /robot1/joint_states + /robot2/joint_states → /joint_states
         rviz_node,
+        gripper1_cm,              # ← gripper1 controller_manager
+        gripper1_jsb_spawner,     # ← spawn joint_state_broadcaster setelah 3s
+        gripper2_cm,              # ← gripper2 controller_manager
+        gripper2_jsb_spawner,     # ← spawn joint_state_broadcaster setelah 3s
     ]
 
 

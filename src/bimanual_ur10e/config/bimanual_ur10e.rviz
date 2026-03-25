@@ -1,15 +1,15 @@
 Panels:
   - Class: rviz_common/Displays
-    Help Height: 78
+    Help Height: 138
     Name: Displays
     Property Tree Widget:
       Expanded:
         - /Global Options1
         - /RobotModel1
-        - /RobotModel2
         - /TF1
+        - /TF1/Status1
       Splitter Ratio: 0.5
-    Tree Height: 754
+    Tree Height: 753
   - Class: rviz_common/Selection
     Name: Selection
   - Class: rviz_common/Views
@@ -17,7 +17,6 @@ Panels:
       - /Current View1
     Name: Views
     Splitter Ratio: 0.5
-
 Visualization Manager:
   Class: ""
   Displays:
@@ -26,6 +25,9 @@ Visualization Manager:
       Class: rviz_default_plugins/Grid
       Color: 160; 160; 164
       Enabled: true
+      Line Style:
+        Line Width: 0.029999999329447746
+        Value: Lines
       Name: Grid
       Normal Cell Count: 0
       Offset:
@@ -36,18 +38,274 @@ Visualization Manager:
       Plane Cell Count: 10
       Reference Frame: <Fixed Frame>
       Value: true
-
-    - Class: rviz_default_plugins/RobotModel
+    - Alpha: 1
+      Class: rviz_default_plugins/RobotModel
+      Collision Enabled: false
       Description File: ""
       Description Source: Topic
       Description Topic:
         Depth: 5
         Durability Policy: Volatile
         History Policy: Keep Last
-        QoS:
-          Reliability Policy: Reliable
+        Reliability Policy: Reliable
         Value: /robot_description
       Enabled: true
+      Links:
+        All Links Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        Link Tree Style: Links in Alphabetic Order
+        gripper1_left_inner_finger:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        gripper1_left_inner_finger_pad:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        gripper1_left_inner_knuckle:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        gripper1_left_outer_finger:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        gripper1_left_outer_knuckle:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        gripper1_right_inner_finger:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        gripper1_right_inner_finger_pad:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        gripper1_right_inner_knuckle:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        gripper1_right_outer_finger:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        gripper1_right_outer_knuckle:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        gripper1_robotiq_140_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        gripper1_robotiq_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        gripper1_tool0_adapter:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        gripper1_ur_to_robotiq_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        gripper2_left_inner_finger:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        gripper2_left_inner_finger_pad:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        gripper2_left_inner_knuckle:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        gripper2_left_outer_finger:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        gripper2_left_outer_knuckle:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        gripper2_right_inner_finger:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        gripper2_right_inner_finger_pad:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        gripper2_right_inner_knuckle:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        gripper2_right_outer_finger:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        gripper2_right_outer_knuckle:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        gripper2_robotiq_140_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        gripper2_robotiq_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        gripper2_tool0_adapter:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        gripper2_ur_to_robotiq_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        robot1_base:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        robot1_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        robot1_base_link_inertia:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        robot1_flange:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        robot1_forearm_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        robot1_ft_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        robot1_shoulder_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        robot1_tool0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        robot1_upper_arm_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        robot1_wrist_1_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        robot1_wrist_2_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        robot1_wrist_3_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        robot2_base:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        robot2_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        robot2_base_link_inertia:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        robot2_flange:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        robot2_forearm_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        robot2_ft_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        robot2_shoulder_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        robot2_tool0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        robot2_upper_arm_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        robot2_wrist_1_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        robot2_wrist_2_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        robot2_wrist_3_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        world:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
       Mass Properties:
         Inertia: false
         Mass: false
@@ -56,28 +314,195 @@ Visualization Manager:
       Update Interval: 0
       Value: true
       Visual Enabled: true
-
     - Class: rviz_default_plugins/TF
       Enabled: true
       Frame Timeout: 15
       Frames:
         All Enabled: true
-      Marker Scale: 0.3
+        gripper1_left_inner_finger:
+          Value: true
+        gripper1_left_inner_finger_pad:
+          Value: true
+        gripper1_left_inner_knuckle:
+          Value: true
+        gripper1_left_outer_finger:
+          Value: true
+        gripper1_left_outer_knuckle:
+          Value: true
+        gripper1_right_inner_finger:
+          Value: true
+        gripper1_right_inner_finger_pad:
+          Value: true
+        gripper1_right_inner_knuckle:
+          Value: true
+        gripper1_right_outer_finger:
+          Value: true
+        gripper1_right_outer_knuckle:
+          Value: true
+        gripper1_robotiq_140_base_link:
+          Value: true
+        gripper1_robotiq_base_link:
+          Value: true
+        gripper1_tool0_adapter:
+          Value: true
+        gripper1_ur_to_robotiq_link:
+          Value: true
+        gripper2_left_inner_finger:
+          Value: true
+        gripper2_left_inner_finger_pad:
+          Value: true
+        gripper2_left_inner_knuckle:
+          Value: true
+        gripper2_left_outer_finger:
+          Value: true
+        gripper2_left_outer_knuckle:
+          Value: true
+        gripper2_right_inner_finger:
+          Value: true
+        gripper2_right_inner_finger_pad:
+          Value: true
+        gripper2_right_inner_knuckle:
+          Value: true
+        gripper2_right_outer_finger:
+          Value: true
+        gripper2_right_outer_knuckle:
+          Value: true
+        gripper2_robotiq_140_base_link:
+          Value: true
+        gripper2_robotiq_base_link:
+          Value: true
+        gripper2_tool0_adapter:
+          Value: true
+        gripper2_ur_to_robotiq_link:
+          Value: true
+        robot1_base:
+          Value: true
+        robot1_base_link:
+          Value: true
+        robot1_base_link_inertia:
+          Value: true
+        robot1_flange:
+          Value: true
+        robot1_forearm_link:
+          Value: true
+        robot1_ft_frame:
+          Value: true
+        robot1_shoulder_link:
+          Value: true
+        robot1_tool0:
+          Value: true
+        robot1_upper_arm_link:
+          Value: true
+        robot1_wrist_1_link:
+          Value: true
+        robot1_wrist_2_link:
+          Value: true
+        robot1_wrist_3_link:
+          Value: true
+        robot2_base:
+          Value: true
+        robot2_base_link:
+          Value: true
+        robot2_base_link_inertia:
+          Value: true
+        robot2_flange:
+          Value: true
+        robot2_forearm_link:
+          Value: true
+        robot2_ft_frame:
+          Value: true
+        robot2_shoulder_link:
+          Value: true
+        robot2_tool0:
+          Value: true
+        robot2_upper_arm_link:
+          Value: true
+        robot2_wrist_1_link:
+          Value: true
+        robot2_wrist_2_link:
+          Value: true
+        robot2_wrist_3_link:
+          Value: true
+        world:
+          Value: true
+      Marker Scale: 0.30000001192092896
       Name: TF
-      Show Arrows: true
-      Show Axes: true
+      Show Arrows: false
+      Show Axes: false
       Show Names: false
       Tree:
-        {}
+        world:
+          robot1_base_link:
+            robot1_base:
+              {}
+            robot1_base_link_inertia:
+              robot1_shoulder_link:
+                robot1_upper_arm_link:
+                  robot1_forearm_link:
+                    robot1_wrist_1_link:
+                      robot1_wrist_2_link:
+                        robot1_wrist_3_link:
+                          robot1_flange:
+                            robot1_tool0:
+                              gripper1_ur_to_robotiq_link:
+                                gripper1_tool0_adapter:
+                                  gripper1_robotiq_base_link:
+                                    gripper1_robotiq_140_base_link:
+                                      gripper1_left_inner_knuckle:
+                                        {}
+                                      gripper1_left_outer_knuckle:
+                                        gripper1_left_outer_finger:
+                                          gripper1_left_inner_finger:
+                                            gripper1_left_inner_finger_pad:
+                                              {}
+                                      gripper1_right_inner_knuckle:
+                                        {}
+                                      gripper1_right_outer_knuckle:
+                                        gripper1_right_outer_finger:
+                                          gripper1_right_inner_finger:
+                                            gripper1_right_inner_finger_pad:
+                                              {}
+                          robot1_ft_frame:
+                            {}
+          robot2_base_link:
+            robot2_base:
+              {}
+            robot2_base_link_inertia:
+              robot2_shoulder_link:
+                robot2_upper_arm_link:
+                  robot2_forearm_link:
+                    robot2_wrist_1_link:
+                      robot2_wrist_2_link:
+                        robot2_wrist_3_link:
+                          robot2_flange:
+                            robot2_tool0:
+                              gripper2_ur_to_robotiq_link:
+                                gripper2_tool0_adapter:
+                                  gripper2_robotiq_base_link:
+                                    gripper2_robotiq_140_base_link:
+                                      gripper2_left_inner_knuckle:
+                                        {}
+                                      gripper2_left_outer_knuckle:
+                                        gripper2_left_outer_finger:
+                                          gripper2_left_inner_finger:
+                                            gripper2_left_inner_finger_pad:
+                                              {}
+                                      gripper2_right_inner_knuckle:
+                                        {}
+                                      gripper2_right_outer_knuckle:
+                                        gripper2_right_outer_finger:
+                                          gripper2_right_inner_finger:
+                                            gripper2_right_inner_finger_pad:
+                                              {}
+                          robot2_ft_frame:
+                            {}
       Update Interval: 0
       Value: true
-
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
     Fixed Frame: world
     Frame Rate: 30
-
   Name: root
   Tools:
     - Class: rviz_default_plugins/Interact
@@ -87,14 +512,16 @@ Visualization Manager:
     - Class: rviz_default_plugins/FocusCamera
     - Class: rviz_default_plugins/Measure
       Line color: 128; 128; 0
-
+  Transformation:
+    Current:
+      Class: rviz_default_plugins/TF
   Value: true
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 3.5
+      Distance: 2.8645355701446533
       Enable Stereo Rendering:
-        Stereo Eye Separation: 0.06
+        Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
@@ -103,26 +530,26 @@ Visualization Manager:
         Y: 0
         Z: 0.5
       Focal Shape Fixed Size: true
-      Focal Shape Size: 0.05
+      Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5
+      Pitch: 0.3449997305870056
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 0.785
-
+      Yaw: 4.933182239532471
+    Saved: ~
 Window Geometry:
   Displays:
     collapsed: false
-  Height: 900
+  Height: 2432
   Hide Left Dock: false
   Hide Right Dock: false
-  QMainWindow State: 000000ff00000000fd0000000400000000000001560000033cfc0200000009fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007300000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f006c004800000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000003b0000033c000000c900fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006700650074007300200054006f006f006c004800000007800000045000000000000000000000000200000490000000a900fffffffb0000000a00560069006500770073010000003b0000049a000000a400ffffff000000010000010f0000033cfc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073000000003b0000033c000000a400fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a900fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007300000003fc000001bc000000000000000000000001000001900000033cfc0000000100000002fb0000000a0056006900650077730000000000000001900000000000000000
+  QMainWindow State: 000000ff00000000fd000000010000000000000316000008e4fc0200000003fb000000100044006900730070006c006100790073010000006e000003e90000018200fffffffb0000001200530065006c0065006300740069006f006e0100000463000001c9000000b000fffffffb0000000a0056006900650077007301000006380000031a0000013200ffffff00000c32000008e400000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Views:
     collapsed: false
-  Width: 1600
-  X: 0
-  Y: 0
+  Width: 3924
+  X: 172
+  Y: 54

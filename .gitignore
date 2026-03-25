@@ -24,6 +24,11 @@ output3.log
 output4.log
 output5.log
 output6.log
+output_gripper.log
 
 .gitgnore
+
+move_to_pregrasp.urscript
+
+/data
 

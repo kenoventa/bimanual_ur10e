@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="gripper1_standalone">
+
+  <xacro:include filename="$(find robotiq_description)/urdf/robotiq_2f_140_macro.urdf.xacro"/>
+  <xacro:include filename="$(find robotiq_description)/urdf/ur_to_robotiq_adapter.urdf.xacro"/>
+
+  <!-- Dummy root (replace robot2_tool0) -->
+  <link name="world"/>
+
+  <!-- Adapter with parent=world (not robot2_tool0) -->
+  <xacro:ur_to_robotiq
+    prefix="gripper2_"
+    parent="world"
+    child="gripper2_tool0_adapter"/>
+
+  <xacro:robotiq_gripper
+    name="gripper2"
+    prefix="gripper2_"
+    parent="gripper2_tool0_adapter"
+    use_fake_hardware="false"
+    com_port="/dev/ttyUSB1">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </xacro:robotiq_gripper>
+
+</robot>
