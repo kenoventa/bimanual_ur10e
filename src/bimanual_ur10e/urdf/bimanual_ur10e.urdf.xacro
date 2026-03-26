@@ -28,7 +28,7 @@
   <!-- Shared world link -->
   <link name="world"/>
 
-  <!-- ===== Robot 1 - left arm ===== -->
+  <!-- ===== Robot 1 - right arm ===== -->
   <xacro:ur_robot
     name="robot1"
     tf_prefix="robot1_"
@@ -45,7 +45,7 @@
     <origin xyz="0.7 0.0 0.0" rpy="0 0 ${-pi/3}"/>
   </xacro:ur_robot>
 
-  <!-- ===== Robot 2 - RIGHT arm ===== -->
+  <!-- ===== Robot 2 - left arm ===== -->
   <xacro:ur_robot 
     name="robot2"
     tf_prefix="robot2_"
@@ -87,7 +87,7 @@
     parent="gripper2_tool0_adapter"
     use_fake_hardware="false"
     com_port="/dev/ttyUSB1">
-    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <origin xyz="0 0 0" rpy="0 0 ${pi/2}"/>
   </xacro:robotiq_gripper>
 
   

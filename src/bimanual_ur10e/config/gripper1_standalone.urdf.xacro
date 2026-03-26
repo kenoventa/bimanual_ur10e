@@ -13,7 +13,8 @@
     parent="world"
     child="gripper1_tool0_adapter"/>
 
-  <xacro:robotiq_gripper
+  <!-- right gripper -->
+  <xacro:robotiq_gripper 
     name="gripper1"
     prefix="gripper1_"
     parent="gripper1_tool0_adapter"

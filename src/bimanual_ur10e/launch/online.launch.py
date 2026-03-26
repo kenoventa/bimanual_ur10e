@@ -293,6 +293,7 @@ def launch_setup(context, *args, **kwargs):
                         "script_command_port":       "50002",
                         "trajectory_port":           "50003",
                         "script_sender_port":        "50004",
+                        "controllers_config_file":   os.path.join(pkg_share, "config", "robot1_controllers.yaml"),
                     }.items(),
                 ),
             ])
@@ -328,6 +329,7 @@ def launch_setup(context, *args, **kwargs):
                         "script_command_port":       "50012",
                         "trajectory_port":           "50013",
                         "script_sender_port":        "50014",
+                        "controllers_config_file":   os.path.join(pkg_share, "config", "robot2_controllers.yaml"),
                     }.items(),
                 ),
             ])
@@ -432,29 +434,6 @@ def launch_setup(context, *args, **kwargs):
         gripper2_cm,              # ← gripper2 controller_manager
         gripper2_jsb_spawner,     # ← spawn joint_state_broadcaster setelah 3s
     ]
-
-
-def generate_launch_description():
-    pkg_share = get_package_share_directory("bimanual_ur10e")
-
-    return LaunchDescription([
-        DeclareLaunchArgument(
-            "robot1_ip",
-            default_value="192.168.1.10",
-            description="IP address of robot1 (UR10e left)",
-        ),
-        DeclareLaunchArgument(
-            "robot2_ip",
-            default_value="192.168.1.20",
-            description="IP address of robot2 (UR10e right)",
-        ),
-        DeclareLaunchArgument(
-            "rviz_config",
-            default_value=os.path.join(pkg_share, "config", "bimanual_ur10e.rviz"),
-            description="Full path to the RViz config file",
-        ),
-        OpaqueFunction(function=launch_setup),
-    ])
 
 
 def generate_launch_description():
