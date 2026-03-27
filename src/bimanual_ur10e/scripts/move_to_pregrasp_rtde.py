@@ -8,10 +8,12 @@ Requirements:
   pip install ur-rtde
 
 Usage:
-  python3 move_to_pregrasp_rtde.py [--config CONFIG_FILE] [--robot ROBOT_NUM] [--duration SECONDS]
+  python3 move_to_pregrasp_rtde.py [--config CONFIG_FILE] [--robot ROBOT] [--duration SECONDS]
 
 Example:
-  python3 move_to_pregrasp_rtde.py --config ur_config.yaml --robot both --duration 5.0
+  python3 move_to_pregrasp_rtde.py --config ur_robots.yaml --robot both --duration 5.0
+  python3 move_to_pregrasp_rtde.py --robot left --duration 3.0
+  python3 move_to_pregrasp_rtde.py --robot right --duration 3.0
 """
 
 import argparse
@@ -36,7 +38,16 @@ except ImportError:
 HOME_POSE = [0.0, -math.pi / 2, 0.0, -math.pi / 2, 0.0, 0.0]
 
 # Pre-grasp position: Ready to approach cable from above
-PREGRASP_POSE = [
+PREGRASP_POSE_LEFT = [
+    0.0,                    # shoulder_pan_joint
+    -math.pi / 2,          # shoulder_lift_joint
+    0.0,                   # elbow_joint
+    -math.pi / 2,          # wrist_1_joint
+    0.0,                   # wrist_2_joint
+    0.0,                   # wrist_3_joint
+]
+
+PREGRASP_POSE_RIGHT = [
     0.0,                    # shoulder_pan_joint
     -math.pi / 2,          # shoulder_lift_joint
     0.0,                   # elbow_joint
@@ -116,9 +127,10 @@ class URRTDEController:
         """Move ke home position."""
         return self.move_to_pose(HOME_POSE, duration_sec=5.0)
 
-    def move_to_pregrasp(self, duration_sec=5.0):
+    def move_to_pregrasp(self, robot_side="left", duration_sec=5.0):
         """Move ke pre-grasp position."""
-        return self.move_to_pose(PREGRASP_POSE, duration_sec=duration_sec)
+        pose = PREGRASP_POSE_LEFT if robot_side == "left" else PREGRASP_POSE_RIGHT
+        return self.move_to_pose(pose, duration_sec=duration_sec)
 
     def disconnect(self):
         """Gracefully disconnect dari robot."""
@@ -137,8 +149,8 @@ class MoveToPreGraspRTDENode(Node):
         
         # Load configuration
         self.config = self.load_config(config_file)
-        self.robot1_controller = None
-        self.robot2_controller = None
+        self.robot_left_controller = None
+        self.robot_right_controller = None
 
     def load_config(self, config_file=None):
         """Load configuration dari YAML file."""
@@ -149,8 +161,8 @@ class MoveToPreGraspRTDENode(Node):
             print(f"[WARNING] Config file not found: {config_file}")
             print("[WARNING] Using default IPs...")
             return {
-                "robot1": {"ip": "192.168.1.10", "name": "robot1"},
-                "robot2": {"ip": "192.168.1.20", "name": "robot2"},
+                "left": {"ip": "192.168.1.10", "name": "left"},
+                "right": {"ip": "192.168.1.20", "name": "right"},
             }
         
         try:
@@ -164,42 +176,42 @@ class MoveToPreGraspRTDENode(Node):
 
     def connect_robots(self, robot_list):
         """Connect ke specified robots."""
-        if "robot1" in robot_list or "both" in robot_list:
+        if "left" in robot_list or "both" in robot_list:
             try:
-                robot1_ip = self.config["robot1"]["ip"]
-                self.robot1_controller = URRTDEController(robot1_ip)
+                left_ip = self.config["left"]["ip"]
+                self.robot_left_controller = URRTDEController(left_ip)
             except Exception as e:
-                print(f"[ERROR] Failed to connect robot1: {e}")
+                print(f"[ERROR] Failed to connect left robot: {e}")
 
-        if "robot2" in robot_list or "both" in robot_list:
+        if "right" in robot_list or "both" in robot_list:
             try:
-                robot2_ip = self.config["robot2"]["ip"]
-                self.robot2_controller = URRTDEController(robot2_ip)
+                right_ip = self.config["right"]["ip"]
+                self.robot_right_controller = URRTDEController(right_ip)
             except Exception as e:
-                print(f"[ERROR] Failed to connect robot2: {e}")
+                print(f"[ERROR] Failed to connect right robot: {e}")
 
     def move_robots_to_pregrasp(self, robot_list="both", duration_sec=5.0):
         """Move specified robots ke pre-grasp position."""
-        self.connect_robots([robot_list] if robot_list != "both" else ["robot1", "robot2"])
+        self.connect_robots([robot_list] if robot_list != "both" else ["left", "right"])
         
         results = {}
         
-        if self.robot1_controller and (robot_list == "1" or robot_list == "both"):
-            print(f"\n[ROBOT1] Starting motion...")
-            results["robot1"] = self.robot1_controller.move_to_pregrasp(duration_sec)
+        if self.robot_left_controller and (robot_list == "left" or robot_list == "both"):
+            print(f"\n[LEFT ROBOT] Starting motion...")
+            results["left"] = self.robot_left_controller.move_to_pregrasp("left", duration_sec)
         
-        if self.robot2_controller and (robot_list == "2" or robot_list == "both"):
-            print(f"\n[ROBOT2] Starting motion...")
-            results["robot2"] = self.robot2_controller.move_to_pregrasp(duration_sec)
+        if self.robot_right_controller and (robot_list == "right" or robot_list == "both"):
+            print(f"\n[RIGHT ROBOT] Starting motion...")
+            results["right"] = self.robot_right_controller.move_to_pregrasp("right", duration_sec)
         
         return results
 
     def disconnect_all(self):
         """Disconnect from all robots."""
-        if self.robot1_controller:
-            self.robot1_controller.disconnect()
-        if self.robot2_controller:
-            self.robot2_controller.disconnect()
+        if self.robot_left_controller:
+            self.robot_left_controller.disconnect()
+        if self.robot_right_controller:
+            self.robot_right_controller.disconnect()
 
 
 def main(args=None):
@@ -216,7 +228,7 @@ def main(args=None):
         "--robot",
         type=str,
         default="both",
-        choices=["1", "2", "both"],
+        choices=["left", "right", "both"],
         help="Which robot(s) to move (default: both)",
     )
     parser.add_argument(

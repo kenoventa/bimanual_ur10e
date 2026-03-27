@@ -1,0 +1,20 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 100  # Hz
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+joint_state_broadcaster:
+  ros__parameters:
+    # All gripper2 joints to publish from hardware state
+    joints:
+      - gripper2_finger_joint
+      - gripper2_left_inner_knuckle_joint
+      - gripper2_left_inner_finger_joint
+      - gripper2_left_outer_finger_joint
+      - gripper2_left_outer_knuckle_joint
+      - gripper2_right_inner_knuckle_joint
+      - gripper2_right_inner_finger_joint
+      - gripper2_right_outer_finger_joint
+      - gripper2_right_outer_knuckle_joint
+

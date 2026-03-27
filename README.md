@@ -227,6 +227,105 @@ ros2 launch bimanual_ur10e online.launch.py \
 
 ---
 
+## Gripper Joint State Publisher
+
+This package includes a **bimanual Robotiq gripper publisher** that reads gripper positions via UR controller socket interface (port 63352) and publishes them to ROS 2.
+
+**Features:**
+- Reads both Robotiq gripper positions simultaneously
+- Publishes normalized joint states (0.0 = open, 1.0 = closed)
+- Automatic calibration support for gripper position range
+- Integrated with arm joint aggregation via `joint_state_publisher`
+- Compatible with rosbag2 recording
+
+### Quick Usage
+
+**Option 1: Combined Launcher (Recommended - includes arm + gripper)**
+
+```bash
+ros2 launch bimanual_ur10e online_with_gripper.launch.py \
+    robot1_ip:=192.168.1.10 \
+    robot2_ip:=192.168.1.20
+```
+
+This starts everything together: UR drivers + gripper publisher + RViz.
+
+**Option 2: Standalone Gripper Publisher**
+
+```bash
+ros2 launch bimanual_ur10e gripper_publisher.launch.py \
+    robot1_ip:=192.168.1.10 \
+    robot2_ip:=192.168.1.20
+```
+
+### Calibration
+
+If your gripper doesn't publish 0.0 when fully open, calibrate the raw position range:
+
+```bash
+# Example: if gripper publishes 0.011 when fully open (raw=3) and 1.0 when fully closed (raw=255)
+ros2 launch bimanual_ur10e gripper_publisher.launch.py \
+    robot1_ip:=192.168.1.10 \
+    robot2_ip:=192.168.1.20 \
+    raw_position_min:=3 \
+    raw_position_max:=255
+```
+
+**To find your calibration values:**
+1. Run the gripper publisher with default values
+2. Manually open/close gripper and observe output values
+3. Use those values with `raw_position_min` and `raw_position_max` parameters
+
+### Verification
+
+Check if gripper data is publishing:
+
+```bash
+# View gripper 1 data
+ros2 topic echo /gripper1/joint_states
+
+# View gripper 2 data  
+ros2 topic echo /gripper2/joint_states
+
+# View aggregated arm + gripper data
+ros2 topic echo /joint_states
+```
+
+### Recording with Grippers
+
+Record both arm and gripper states:
+
+```bash
+# Terminal 1: Start combined launcher
+ros2 launch bimanual_ur10e online_with_gripper.launch.py \
+    robot1_ip:=192.168.1.10 \
+    robot2_ip:=192.168.1.20
+
+# Terminal 2: Record everything
+ros2 bag record /joint_states -o my_bimanual_with_gripper
+
+# Terminal 3: Playback (when needed)
+ros2 bag play my_bimanual_with_gripper --clock
+```
+
+### Implementation Details
+
+**Joint Names:**
+- `gripper1_finger_joint` → published to `/gripper1/joint_states`
+- `gripper2_finger_joint` → published to `/gripper2/joint_states`
+
+**Protocol:**
+- Uses UR controller port **63352** for gripper communication
+- Command: `GET POS\n` → Response: `POS <value>\n` (0-255 range)
+- Publishing rate: 10 Hz
+
+**Position Range:**
+- 0.0 = fully open
+- 1.0 = fully closed
+- Normalized automatically based on calibration parameters
+
+---
+
 **Offline playback with gripper states:**
 
 If you have recorded a rosbag with gripper control:

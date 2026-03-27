@@ -366,57 +366,121 @@ def launch_setup(context, *args, **kwargs):
         value_type=str,
     )
 
-    # ─── Gripper 1 controller_manager ─────────────────────────────────────────────
-    # Dedicated CM untuk gripper1 (terpisah dari robot1 CM)
-    # Tidak pakai PushRosNamespace karena kita bisa set namespace langsung di Node
-    gripper1_cm = Node(
-        package="controller_manager",
-        executable="ros2_control_node",
-        namespace="gripper1",
-        parameters=[{"robot_description": gripper1_description}],
-        output="screen",
-    )
-
-    # Spawner: joint_state_broadcaster untuk gripper1
-    # Absolute path ke /gripper1/controller_manager agar tidak perlu remap
-    gripper1_jsb_spawner = TimerAction(
-        period=3.0,   # beri waktu CM start + USB init
+    # ─── Gripper 1 Setup (with proper parameter namespace) ──────────────────
+    gripper1_setup = TimerAction(
+        period=1.0,
         actions=[
-            Node(
-                package="controller_manager",
-                executable="spawner",
-                arguments=[
-                    "joint_state_broadcaster",
-                    "--controller-manager", "/gripper1/controller_manager",
-                    "--controller-manager-timeout", "30",
-                ],
-                output="screen",
-            )
+            GroupAction([
+                PushRosNamespace("gripper1"),
+                SetParameter(name="joint_state_broadcaster.type", 
+                            value="joint_state_broadcaster/JointStateBroadcaster"),
+                Node(
+                    package="controller_manager",
+                    executable="ros2_control_node",
+                    parameters=[
+                        {"robot_description": gripper1_description},
+                        {
+                            "controller_manager": {
+                                "ros__parameters": {
+                                    "update_rate": 100,
+                                }
+                            }
+                        },
+                        {
+                            "joint_state_broadcaster": {
+                                "ros__parameters": {
+                                    "joints": [
+                                        "gripper1_finger_joint",
+                                        "gripper1_left_inner_knuckle_joint",
+                                        "gripper1_left_inner_finger_joint",
+                                        "gripper1_left_outer_finger_joint",
+                                        "gripper1_left_outer_knuckle_joint",
+                                        "gripper1_right_inner_knuckle_joint",
+                                        "gripper1_right_inner_finger_joint",
+                                        "gripper1_right_outer_finger_joint",
+                                        "gripper1_right_outer_knuckle_joint",
+                                    ]
+                                }
+                            }
+                        }
+                    ],
+                    output="screen",
+                ),
+                TimerAction(
+                    period=3.0,
+                    actions=[
+                        Node(
+                            package="controller_manager",
+                            executable="spawner",
+                            arguments=[
+                                "joint_state_broadcaster",
+                                "--controller-manager", "/gripper1/controller_manager",
+                                "--controller-manager-timeout", "30",
+                            ],
+                            output="screen",
+                        )
+                    ]
+                )
+            ])
         ]
     )
 
-    # ─── Gripper 2 controller_manager ─────────────────────────────────────────────
-    gripper2_cm = Node(
-        package="controller_manager",
-        executable="ros2_control_node",
-        namespace="gripper2",
-        parameters=[{"robot_description": gripper2_description}],
-        output="screen",
-    )
-
-    gripper2_jsb_spawner = TimerAction(
-        period=3.0,
+    # ─── Gripper 2 Setup (with proper parameter namespace) ──────────────────
+    gripper2_setup = TimerAction(
+        period=1.0,
         actions=[
-            Node(
-                package="controller_manager",
-                executable="spawner",
-                arguments=[
-                    "joint_state_broadcaster",
-                    "--controller-manager", "/gripper2/controller_manager",
-                    "--controller-manager-timeout", "30",
-                ],
-                output="screen",
-            )
+            GroupAction([
+                PushRosNamespace("gripper2"),
+                SetParameter(name="joint_state_broadcaster.type", 
+                            value="joint_state_broadcaster/JointStateBroadcaster"),
+                Node(
+                    package="controller_manager",
+                    executable="ros2_control_node",
+                    parameters=[
+                        {"robot_description": gripper2_description},
+                        {
+                            "controller_manager": {
+                                "ros__parameters": {
+                                    "update_rate": 100,
+                                }
+                            }
+                        },
+                        {
+                            "joint_state_broadcaster": {
+                                "ros__parameters": {
+                                    "joints": [
+                                        "gripper2_finger_joint",
+                                        "gripper2_left_inner_knuckle_joint",
+                                        "gripper2_left_inner_finger_joint",
+                                        "gripper2_left_outer_finger_joint",
+                                        "gripper2_left_outer_knuckle_joint",
+                                        "gripper2_right_inner_knuckle_joint",
+                                        "gripper2_right_inner_finger_joint",
+                                        "gripper2_right_outer_finger_joint",
+                                        "gripper2_right_outer_knuckle_joint",
+                                    ]
+                                }
+                            }
+                        }
+                    ],
+                    output="screen",
+                ),
+                TimerAction(
+                    period=3.0,
+                    actions=[
+                        Node(
+                            package="controller_manager",
+                            executable="spawner",
+                            arguments=[
+                                "joint_state_broadcaster",
+                                "--controller-manager", "/gripper2/controller_manager",
+                                "--controller-manager-timeout", "30",
+                            ],
+                            output="screen",
+                        )
+                    ]
+                )
+            ])
         ]
     )
     
@@ -429,10 +493,8 @@ def launch_setup(context, *args, **kwargs):
         joint_state_republisher_robot2,   # /robot2/joint_state_broadcaster/state → /robot2/joint_states
         joint_state_publisher_node,       # /robot1/joint_states + /robot2/joint_states → /joint_states
         rviz_node,
-        gripper1_cm,              # ← gripper1 controller_manager
-        gripper1_jsb_spawner,     # ← spawn joint_state_broadcaster setelah 3s
-        gripper2_cm,              # ← gripper2 controller_manager
-        gripper2_jsb_spawner,     # ← spawn joint_state_broadcaster setelah 3s
+        gripper1_setup,           # ← gripper1 setup with namespace + parameters + spawner
+        gripper2_setup,           # ← gripper2 setup with namespace + parameters + spawner
     ]
 
 

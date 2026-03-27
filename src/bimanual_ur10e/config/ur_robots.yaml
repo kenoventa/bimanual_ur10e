@@ -1,15 +1,14 @@
 # UR Robots Configuration
 
-robots:
-  robot1:
-    name: "UR10e Left Arm"
-    ip: "192.168.1.10"  
-    frequency: 500       # RTDE frequency (Hz)
-    
-  robot2:
-    name: "UR10e Right Arm"
-    ip: "192.168.1.20"  
-    frequency: 500
+left:
+  name: "UR10e Left Arm"
+  ip: "192.168.1.10"  
+  frequency: 500       # RTDE frequency (Hz)
+  
+right:
+  name: "UR10e Right Arm"
+  ip: "192.168.1.20"  
+  frequency: 500
 
 # Joint configurations (optional)
 poses:

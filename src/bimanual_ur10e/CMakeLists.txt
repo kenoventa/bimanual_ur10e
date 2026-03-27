@@ -16,6 +16,7 @@ install(
     scripts/joint_state_republisher.py
     scripts/move_to_pregrasp.py
     scripts/move_to_pregrasp_rtde.py
+    scripts/robotiq_gripper_publisher.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
