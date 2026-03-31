@@ -4,8 +4,8 @@
     update_rate: 500
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
-    io_and_status_controller:
-      type: ur_controllers/GPIOController
+    # io_and_status_controller:
+    #   type: ur_controllers/GPIOController
     speed_scaling_state_broadcaster:
       type: ur_controllers/SpeedScalingStateBroadcaster
     force_torque_sensor_broadcaster:

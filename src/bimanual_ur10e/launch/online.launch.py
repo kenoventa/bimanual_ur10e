@@ -26,42 +26,20 @@ from launch_ros.actions import Node, PushRosNamespace, SetRemap, SetParameter
 
 def controller_type_params():
     """
-    Inject controller type params to all nodes in GroupAction.
-    Only controller_manager is using this param
-    Type strings is taken from ur_controllers.yaml.
+    Minimal controller params - only what GELLO needs to move robot.
+    Reduces complexity and initialization time.
     """
     return [
         SetParameter(name="update_rate", value=500),
         SetParameter(name="joint_state_broadcaster.type",
                      value="joint_state_broadcaster/JointStateBroadcaster"),
-        SetParameter(name="io_and_status_controller.type",
-                     value="ur_controllers/GPIOController"),
-        SetParameter(name="speed_scaling_state_broadcaster.type",
-                     value="ur_controllers/SpeedScalingStateBroadcaster"),
-        SetParameter(name="force_torque_sensor_broadcaster.type",
-                     value="force_torque_sensor_broadcaster/ForceTorqueSensorBroadcaster"),
-        SetParameter(name="joint_trajectory_controller.type",
-                     value="joint_trajectory_controller/JointTrajectoryController"),
         SetParameter(name="scaled_joint_trajectory_controller.type",
                      value="ur_controllers/ScaledJointTrajectoryController"),
-        SetParameter(name="forward_velocity_controller.type",
-                     value="velocity_controllers/JointGroupVelocityController"),
-        SetParameter(name="forward_effort_controller.type",
-                     value="effort_controllers/JointGroupEffortController"),
-        SetParameter(name="forward_position_controller.type",
-                     value="position_controllers/JointGroupPositionController"),
-        SetParameter(name="force_mode_controller.type",
-                     value="ur_controllers/ForceModeController"),
-        SetParameter(name="freedrive_mode_controller.type",
-                     value="ur_controllers/FreedriveModeController"),
-        SetParameter(name="passthrough_trajectory_controller.type",
-                     value="ur_controllers/PassthroughTrajectoryController"),
-        SetParameter(name="tcp_pose_broadcaster.type",
-                     value="pose_broadcaster/PoseBroadcaster"),
-        SetParameter(name="ur_configuration_controller.type",
-                     value="ur_controllers/URConfigurationController"),
-        SetParameter(name="tool_contact_controller.type",
-                     value="ur_controllers/ToolContactController"),
+        SetParameter(name="joint_trajectory_controller.type",
+                     value="joint_trajectory_controller/JointTrajectoryController"),
+        SetParameter(name="speed_scaling_state_broadcaster.type",
+                     value="ur_controllers/SpeedScalingStateBroadcaster"),
+        # Minimal set - remove unnecessary broadcasters to speed up init
     ]
 
 def launch_setup(context, *args, **kwargs):
@@ -129,7 +107,7 @@ def launch_setup(context, *args, **kwargs):
             launch_arguments={
                 "robot_ip":                  robot1_ip,
                 "use_fake_hardware":         "false",
-                "initial_joint_controller":  "scaled_joint_trajectory_controller",
+                # "initial_joint_controller":  "scaled_joint_trajectory_controller",
                 "activate_joint_controller": "false",
                 "headless_mode":             "false",
                 "launch_rviz":               "false",
@@ -266,7 +244,7 @@ def launch_setup(context, *args, **kwargs):
 
     # ── UR Robot Driver Robot 1 ──────────────────────────────────────────────
     robot1_ur_driver = TimerAction(
-        period=0.1,
+        period=1.5,
         actions=[
             GroupAction([
                 PushRosNamespace("robot1"),
@@ -283,7 +261,7 @@ def launch_setup(context, *args, **kwargs):
                     launch_arguments={
                         "robot_ip":                  robot1_ip,
                         "use_fake_hardware":         "false",
-                        "initial_joint_controller":  "scaled_joint_trajectory_controller",
+                        # "initial_joint_controller":  "scaled_joint_trajectory_controller",
                         "activate_joint_controller": "false",
                         "headless_mode":             "false",
                         "launch_rviz":               "false",
@@ -302,7 +280,7 @@ def launch_setup(context, *args, **kwargs):
 
     # ── UR Robot Driver Robot 2 (delayed 2s) ─────────────────────────────────
     robot2_ur_driver = TimerAction(
-        period=2.0,
+        period=1.0,
         actions=[
             GroupAction([
                 PushRosNamespace("robot2"),
@@ -343,6 +321,28 @@ def launch_setup(context, *args, **kwargs):
         name="rviz2",
         output="screen",
         arguments=["-d", rviz_config],
+    )
+
+    camera_tf_node = Node(
+        package="tf2_ros",
+        executable="static_transform_publisher",
+        name="static_camera_tf_publisher",
+        arguments=["0", "0", "1.1", "0", "0", "0", "world", "camera_link"],
+        output="screen",
+    )
+
+   
+    camera_image_view_node = Node(
+        package="image_view",
+        executable="image_view",
+        name="image_view",
+        remappings=[
+            ("image", "/camera/image_raw"), 
+            ("camera_info", "/camera/camera_info"),  
+        ],
+        parameters=[{
+            "autosize": True
+        }]
     )
 
     # ─── Gripper descriptions (dari standalone xacro) ────────────────────────────
@@ -493,8 +493,10 @@ def launch_setup(context, *args, **kwargs):
         joint_state_republisher_robot2,   # /robot2/joint_state_broadcaster/state → /robot2/joint_states
         joint_state_publisher_node,       # /robot1/joint_states + /robot2/joint_states → /joint_states
         rviz_node,
-        gripper1_setup,           # ← gripper1 setup with namespace + parameters + spawner
-        gripper2_setup,           # ← gripper2 setup with namespace + parameters + spawner
+        camera_tf_node,
+        camera_image_view_node, 
+        gripper1_setup,           # ← gripper1 setup with namespace + parameters + spawner (DISABLED)
+        gripper2_setup,           # ← gripper2 setup with namespace + parameters + spawner (DISABLED)
     ]
 
 

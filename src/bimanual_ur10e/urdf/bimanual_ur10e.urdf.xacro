@@ -42,7 +42,7 @@
     sim_gazebo="false"
     sim_ignition="false"
     headless_mode="false">
-    <origin xyz="0.7 0.0 0.0" rpy="0 0 ${-pi/3}"/>
+    <origin xyz="0.92 0.035 0.0" rpy="0 0 ${-pi/2}"/>
   </xacro:ur_robot>
 
   <!-- ===== Robot 2 - left arm ===== -->
