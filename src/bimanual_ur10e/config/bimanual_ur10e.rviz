@@ -7,6 +7,8 @@ Panels:
         - /Global Options1
         - /RobotModel1
         - /TF1
+        - /TF1/Status1
+        - /TF1/Frames1
         - /PointCloud21
       Splitter Ratio: 0.5
     Tree Height: 1153
@@ -318,127 +320,127 @@ Visualization Manager:
       Enabled: true
       Frame Timeout: 15
       Frames:
-        All Enabled: true
+        All Enabled: false
         camera_color_frame:
-          Value: true
+          Value: false
         camera_color_optical_frame:
-          Value: true
+          Value: false
         camera_depth_frame:
-          Value: true
+          Value: false
         camera_depth_optical_frame:
-          Value: true
+          Value: false
         camera_link:
           Value: true
         gripper1_left_inner_finger:
-          Value: true
+          Value: false
         gripper1_left_inner_finger_pad:
-          Value: true
+          Value: false
         gripper1_left_inner_knuckle:
-          Value: true
+          Value: false
         gripper1_left_outer_finger:
-          Value: true
+          Value: false
         gripper1_left_outer_knuckle:
-          Value: true
+          Value: false
         gripper1_right_inner_finger:
-          Value: true
+          Value: false
         gripper1_right_inner_finger_pad:
-          Value: true
+          Value: false
         gripper1_right_inner_knuckle:
-          Value: true
+          Value: false
         gripper1_right_outer_finger:
-          Value: true
+          Value: false
         gripper1_right_outer_knuckle:
-          Value: true
+          Value: false
         gripper1_robotiq_140_base_link:
-          Value: true
+          Value: false
         gripper1_robotiq_base_link:
-          Value: true
+          Value: false
         gripper1_tool0_adapter:
-          Value: true
+          Value: false
         gripper1_ur_to_robotiq_link:
-          Value: true
+          Value: false
         gripper2_left_inner_finger:
-          Value: true
+          Value: false
         gripper2_left_inner_finger_pad:
-          Value: true
+          Value: false
         gripper2_left_inner_knuckle:
-          Value: true
+          Value: false
         gripper2_left_outer_finger:
-          Value: true
+          Value: false
         gripper2_left_outer_knuckle:
-          Value: true
+          Value: false
         gripper2_right_inner_finger:
-          Value: true
+          Value: false
         gripper2_right_inner_finger_pad:
-          Value: true
+          Value: false
         gripper2_right_inner_knuckle:
-          Value: true
+          Value: false
         gripper2_right_outer_finger:
-          Value: true
+          Value: false
         gripper2_right_outer_knuckle:
-          Value: true
+          Value: false
         gripper2_robotiq_140_base_link:
-          Value: true
+          Value: false
         gripper2_robotiq_base_link:
-          Value: true
+          Value: false
         gripper2_tool0_adapter:
-          Value: true
+          Value: false
         gripper2_ur_to_robotiq_link:
-          Value: true
+          Value: false
         robot1_base:
-          Value: true
+          Value: false
         robot1_base_link:
-          Value: true
+          Value: false
         robot1_base_link_inertia:
-          Value: true
+          Value: false
         robot1_flange:
-          Value: true
+          Value: false
         robot1_forearm_link:
-          Value: true
+          Value: false
         robot1_ft_frame:
-          Value: true
+          Value: false
         robot1_shoulder_link:
-          Value: true
+          Value: false
         robot1_tool0:
-          Value: true
+          Value: false
         robot1_upper_arm_link:
-          Value: true
+          Value: false
         robot1_wrist_1_link:
-          Value: true
+          Value: false
         robot1_wrist_2_link:
-          Value: true
+          Value: false
         robot1_wrist_3_link:
-          Value: true
+          Value: false
         robot2_base:
-          Value: true
+          Value: false
         robot2_base_link:
-          Value: true
+          Value: false
         robot2_base_link_inertia:
-          Value: true
+          Value: false
         robot2_flange:
-          Value: true
+          Value: false
         robot2_forearm_link:
-          Value: true
+          Value: false
         robot2_ft_frame:
-          Value: true
+          Value: false
         robot2_shoulder_link:
-          Value: true
+          Value: false
         robot2_tool0:
-          Value: true
+          Value: false
         robot2_upper_arm_link:
-          Value: true
+          Value: false
         robot2_wrist_1_link:
-          Value: true
+          Value: false
         robot2_wrist_2_link:
-          Value: true
+          Value: false
         robot2_wrist_3_link:
-          Value: true
+          Value: false
         world:
-          Value: true
+          Value: false
       Marker Scale: 0.30000001192092896
       Name: TF
       Show Arrows: false
-      Show Axes: false
+      Show Axes: true
       Show Names: false
       Tree:
         world:
@@ -527,7 +529,7 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: RGB8
       Decay Time: 0
-      Enabled: false
+      Enabled: true
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Max Intensity: 4096
@@ -548,7 +550,7 @@ Visualization Manager:
         Value: /camera/depth_registered/points
       Use Fixed Frame: true
       Use rainbow: true
-      Value: false
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -585,10 +587,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.3449997305870056
+      Pitch: 0.514999270439148
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 4.933182239532471
+      Yaw: 4.89318323135376
     Saved: ~
 Window Geometry:
   Displays:
