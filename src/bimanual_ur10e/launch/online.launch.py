@@ -30,7 +30,7 @@ def controller_type_params():
     Reduces complexity and initialization time.
     """
     return [
-        SetParameter(name="update_rate", value=500),
+        SetParameter(name="update_rate", value=100),
         SetParameter(name="joint_state_broadcaster.type",
                      value="joint_state_broadcaster/JointStateBroadcaster"),
         SetParameter(name="scaled_joint_trajectory_controller.type",
@@ -327,7 +327,7 @@ def launch_setup(context, *args, **kwargs):
         package="tf2_ros",
         executable="static_transform_publisher",
         name="static_camera_tf_publisher",
-        arguments=["0.3", "-0.1", "1.1", "1.571", "1.571", "0", "world", "camera_link"],
+        arguments=["0.4", "-0.1", "1.2", "1.571", "1.571", "3.14", "world", "camera_link"],
         output="screen",
     )
 
@@ -337,11 +337,14 @@ def launch_setup(context, *args, **kwargs):
         executable="image_view",
         name="image_view",
         remappings=[
-            ("image", "/camera/image_raw"), 
-            ("camera_info", "/camera/camera_info"),  
+            ("image", "/camera/camera/color/image_raw"),        
+            ("camera_info", "/camera/camera/color/camera_info"),  
         ],
         parameters=[{
-            "autosize": True
+            "autosize": True,
+            # REMOVED: "image_transport": "compressed"  (not available in Humble)
+            # Use raw transport instead
+            "use_intra_process_comms": True,  # ← Optimize IPC
         }]
     )
 
@@ -382,7 +385,7 @@ def launch_setup(context, *args, **kwargs):
                         {
                             "controller_manager": {
                                 "ros__parameters": {
-                                    "update_rate": 100,
+                                    "update_rate": 50,
                                 }
                             }
                         },
@@ -441,7 +444,7 @@ def launch_setup(context, *args, **kwargs):
                         {
                             "controller_manager": {
                                 "ros__parameters": {
-                                    "update_rate": 100,
+                                    "update_rate": 50,
                                 }
                             }
                         },

@@ -151,6 +151,34 @@ def generate_launch_description():
         arguments=["-d", rviz_config],
     )
 
+    # ---------- Camera Static Transform ----------
+    # camera_tf_node = Node(
+    #     package="tf2_ros",
+    #     executable="static_transform_publisher",
+    #     name="static_camera_tf_publisher",
+    #     arguments=["0.4", "-0.1", "1.2", "1.571", "1.571", "3.14", "world", "camera_depth_optical_frame"],
+    #     output="screen",
+    # )
+
+    # 1. Camera Link (Physical Mount) to World Frame
+    camera_link_node = Node(
+        package="tf2_ros",
+        executable="static_transform_publisher",
+        name="static_camera_link_publisher",
+        # Gunakan nilai original kamu yang sudah benar secara fisik
+        arguments=["0.4", "-0.15", "1.2", "1.571", "1.571", "3.14", "world", "camera_link"],
+        output="screen",
+    )
+
+    # 2. Conversion from Camera Link to Depth Optical Frame (ROS standard for depth cameras)
+    camera_optical_node = Node(
+        package="tf2_ros",
+        executable="static_transform_publisher",
+        name="static_camera_optical_publisher",
+        arguments=["0", "0", "0", "-1.571", "0", "-1.571", "camera_link", "camera_depth_optical_frame"],
+        output="screen",
+    )
+
     # NOTE: Rosbag playback is intentionally NOT launched here.
     # Use the replay_rosbag.sh helper script or 'ros2 bag play' manually:
     #
@@ -167,5 +195,8 @@ def generate_launch_description():
             joint_state_publisher_node,
             joint_state_publisher_gui_node,
             rviz_node,
+            # camera_tf_node,
+            camera_link_node,
+            camera_optical_node,
         ]
     )

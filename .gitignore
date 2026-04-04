@@ -31,5 +31,6 @@ output_gripper.log
 move_to_pregrasp.urscript
 
 /data
+/dataa
 
 /output
