@@ -1,3 +1,4 @@
+# Joint states - low latency, no guarantee needed
 /robot1/joint_states:
   reliability: best_effort
   durability: volatile
@@ -8,3 +9,41 @@
   durability: volatile
   history: keep_last
   depth: 10
+
+# Camera image topics - CRITICAL FOR NETWORK PERFORMANCE
+# Best effort + small buffer to prevent accumulation
+/camera/camera/color/image_raw:
+  reliability: best_effort
+  durability: volatile
+  history: keep_last
+  depth: 2  # Only keep 2 latest frames - very aggressive
+  
+/camera/camera/color/image_raw/compressed:
+  reliability: best_effort
+  durability: volatile
+  history: keep_last
+  depth: 5  # Slightly more buffer for compressed
+
+/camera/camera/depth/image_rect_raw:
+  reliability: best_effort
+  durability: volatile
+  history: keep_last
+  depth: 2
+
+/camera/camera/color/camera_info:
+  reliability: best_effort
+  durability: volatile
+  history: keep_last
+  depth: 2
+
+/camera/camera/depth/camera_info:
+  reliability: best_effort
+  durability: volatile
+  history: keep_last
+  depth: 2
+
+/camera/camera/depth/color/points:
+  reliability: best_effort
+  durability: volatile
+  history: keep_last
+  depth: 1

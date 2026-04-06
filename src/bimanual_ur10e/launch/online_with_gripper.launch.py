@@ -28,13 +28,13 @@ def generate_launch_description():
     robot1_ip_arg = DeclareLaunchArgument(
         "robot1_ip",
         default_value="192.168.1.10",
-        description="IP address of robot1 (UR10e left)",
+        description="IP address of robot1 (UR10e right)",
     )
 
     robot2_ip_arg = DeclareLaunchArgument(
         "robot2_ip",
         default_value="192.168.1.20",
-        description="IP address of robot2 (UR10e right)",
+        description="IP address of robot2 (UR10e left)",
     )
 
     # ──────── Get package share directory ────────
@@ -52,7 +52,6 @@ def generate_launch_description():
     )
 
     # ──────── Include gripper_publisher.launch.py (delayed 5s) ────────
-    # Delay 5s agar robot driver sudah siap sebelum gripper publisher mencoba connect
     gripper_launch = TimerAction(
         period=5.0,
         actions=[
@@ -75,114 +74,3 @@ def generate_launch_description():
         online_launch,
         gripper_launch,
     ])
-#     robot1_ur_driver = TimerAction(
-#         period=0.1,
-#         actions=[
-#             GroupAction([
-#                 PushRosNamespace("robot1"),
-#                 SetRemap(src="/tf", dst="/robot1/tf"),
-#                 SetRemap(src="/tf_static", dst="/robot1/tf_static"),
-#                 *cm_remaps("robot1"),
-#                 *controller_type_params(),
-#                 IncludeLaunchDescription(
-#                     PythonLaunchDescriptionSource(
-#                         PathJoinSubstitution([FindPackageShare("ur_robot_driver"), "launch", "ur10e.launch.py"])
-#                     ),
-#                     launch_arguments={
-#                         "robot_ip": robot1_ip,
-#                         "use_fake_hardware": "false",
-#                         "initial_joint_controller": "scaled_joint_trajectory_controller",
-#                         "activate_joint_controller": "false",
-#                         "headless_mode": "false",
-#                         "launch_rviz": "false",
-#                         "tf_prefix": "robot1_",
-#                         "namespace": "robot1",
-#                         "reverse_port": "50001",
-#                         "script_command_port": "50002",
-#                         "trajectory_port": "50003",
-#                         "script_sender_port": "50004",
-#                         "controllers_config_file": os.path.join(pkg_share, "config", "robot1_controllers.yaml"),
-#                     }.items(),
-#                 ),
-#             ])
-#         ]
-#     )
-
-#     # ── UR Robot Driver Robot 2 ──
-#     robot2_ur_driver = TimerAction(
-#         period=2.0,
-#         actions=[
-#             GroupAction([
-#                 PushRosNamespace("robot2"),
-#                 SetRemap(src="/tf", dst="/robot2/tf"),
-#                 SetRemap(src="/tf_static", dst="/robot2/tf_static"),
-#                 *cm_remaps("robot2"),
-#                 *controller_type_params(),
-#                 IncludeLaunchDescription(
-#                     PythonLaunchDescriptionSource(
-#                         PathJoinSubstitution([FindPackageShare("ur_robot_driver"), "launch", "ur10e.launch.py"])
-#                     ),
-#                     launch_arguments={
-#                         "robot_ip": robot2_ip,
-#                         "use_fake_hardware": "false",
-#                         "initial_joint_controller": "scaled_joint_trajectory_controller",
-#                         "activate_joint_controller": "false",
-#                         "headless_mode": "false",
-#                         "launch_rviz": "false",
-#                         "tf_prefix": "robot2_",
-#                         "namespace": "robot2",
-#                         "reverse_port": "50011",
-#                         "script_command_port": "50012",
-#                         "trajectory_port": "50013",
-#                         "script_sender_port": "50014",
-#                         "controllers_config_file": os.path.join(pkg_share, "config", "robot2_controllers.yaml"),
-#                     }.items(),
-#                 ),
-#             ])
-#         ]
-#     )
-
-#     # ── Gripper Publisher (BIMANUAL) ── ✅ NEW
-#     gripper_publisher_node = Node(
-#         package="bimanual_ur10e",
-#         executable="robotiq_gripper_publisher.py",
-#         name="robotiq_gripper_publisher",
-#         output="screen",
-#         parameters=[{
-#             "robot1_ip": robot1_ip,
-#             "robot2_ip": robot2_ip,
-#         }],
-#     )
-
-#     # ── RViz ──
-#     rviz_node = Node(
-#         package="rviz2",
-#         executable="rviz2",
-#         name="rviz2",
-#         output="screen",
-#         arguments=["-d", rviz_config],
-#     )
-
-#     return [
-#         robot_state_publisher_node,
-#         robot1_ur_driver,
-#         robot2_ur_driver,
-#         gripper_publisher_node,  # ← Gripper publisher
-#         joint_state_publisher_node,
-#         rviz_node,
-#     ]
-
-
-# def generate_launch_description():
-#     """Generate launch description."""
-#     pkg_share = get_package_share_directory("bimanual_ur10e")
-
-#     return LaunchDescription([
-#         DeclareLaunchArgument("robot1_ip", default_value="192.168.1.10"),
-#         DeclareLaunchArgument("robot2_ip", default_value="192.168.1.20"),
-#         DeclareLaunchArgument(
-#             "rviz_config",
-#             default_value=os.path.join(pkg_share, "config", "rviz.rviz"),
-#         ),
-#         OpaqueFunction(function=launch_setup),
-#     ])

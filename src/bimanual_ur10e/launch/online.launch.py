@@ -207,10 +207,8 @@ def launch_setup(context, *args, **kwargs):
             "source_list": [
                 "/robot1/joint_states",
                 "/robot2/joint_states",
-                # joint_state_publisher akan auto-compute SEMUA mimic joints
-                # (knuckle, inner finger, outer finger, pad) dari finger_joint position
-                "/gripper1/joint_state_broadcaster/joint_states",
-                "/gripper2/joint_state_broadcaster/joint_states",
+                # "/gripper1/joint_state_broadcaster/joint_states",
+                # "/gripper2/joint_state_broadcaster/joint_states",
             ],
             "rate": 50,
         }],
@@ -244,7 +242,7 @@ def launch_setup(context, *args, **kwargs):
 
     # ── UR Robot Driver Robot 1 ──────────────────────────────────────────────
     robot1_ur_driver = TimerAction(
-        period=1.5,
+        period=2.0,
         actions=[
             GroupAction([
                 PushRosNamespace("robot1"),
@@ -261,8 +259,8 @@ def launch_setup(context, *args, **kwargs):
                     launch_arguments={
                         "robot_ip":                  robot1_ip,
                         "use_fake_hardware":         "false",
-                        # "initial_joint_controller":  "scaled_joint_trajectory_controller",
-                        "activate_joint_controller": "false",
+                        "initial_joint_controller":  "scaled_joint_trajectory_controller",
+                        "activate_joint_controller": "true",
                         "headless_mode":             "false",
                         "launch_rviz":               "false",
                         "tf_prefix":                 "robot1_",
@@ -278,9 +276,9 @@ def launch_setup(context, *args, **kwargs):
         ]
     )
 
-    # ── UR Robot Driver Robot 2 (delayed 2s) ─────────────────────────────────
+    # ── UR Robot Driver Robot 2 (delayed 8s) ─────────────────────────────────
     robot2_ur_driver = TimerAction(
-        period=1.0,
+        period=10.0,
         actions=[
             GroupAction([
                 PushRosNamespace("robot2"),
@@ -298,7 +296,7 @@ def launch_setup(context, *args, **kwargs):
                         "robot_ip":                  robot2_ip,
                         "use_fake_hardware":         "false",
                         "initial_joint_controller":  "scaled_joint_trajectory_controller",
-                        "activate_joint_controller": "false",
+                        "activate_joint_controller": "true",
                         "headless_mode":             "false",
                         "launch_rviz":               "false",
                         "tf_prefix":                 "robot2_",
@@ -332,18 +330,33 @@ def launch_setup(context, *args, **kwargs):
     )
 
    
+    # Camera image republisher using compressed transport for network efficiency
+    # This reduces bandwidth from ~2.7 MB/frame (raw 1280x720 RGB) to ~200-400 KB/frame
+    camera_image_republisher_node = Node(
+        package="image_transport",
+        executable="republish",
+        name="camera_image_republisher",
+        arguments=["raw", "compressed"],  # Subscribe to raw, publish as compressed
+        remappings=[
+            ("in/image_raw", "/camera/camera/color/image_raw"),
+            ("in/camera_info", "/camera/camera/color/camera_info"),
+            ("out/image_compressed", "/camera/camera/color/image_compressed"),
+            ("out/camera_info", "/camera/camera/color/camera_info_compressed"),
+        ],
+        output="screen",
+    )
+
     camera_image_view_node = Node(
         package="image_view",
         executable="image_view",
         name="image_view",
         remappings=[
-            ("image", "/camera/camera/color/image_raw"),        
+            ("image", "/camera/camera/color/image_compressed"),  # Use compressed
             ("camera_info", "/camera/camera/color/camera_info"),  
         ],
         parameters=[{
             "autosize": True,
-            # REMOVED: "image_transport": "compressed"  (not available in Humble)
-            # Use raw transport instead
+            "image_transport": "compressed",  # Tell image_view to expect compressed
             "use_intra_process_comms": True,  # ← Optimize IPC
         }]
     )
@@ -497,7 +510,8 @@ def launch_setup(context, *args, **kwargs):
         joint_state_publisher_node,       # /robot1/joint_states + /robot2/joint_states → /joint_states
         rviz_node,
         camera_tf_node,
-        camera_image_view_node, 
+        camera_image_republisher_node,    # Compress camera images for network efficiency
+        camera_image_view_node,           # Display compressed images
         gripper1_setup,           # ← gripper1 setup with namespace + parameters + spawner (DISABLED)
         gripper2_setup,           # ← gripper2 setup with namespace + parameters + spawner (DISABLED)
     ]

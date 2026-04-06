@@ -34,3 +34,5 @@ move_to_pregrasp.urscript
 /dataa
 
 /output
+
+scripts/setup_network.sh
