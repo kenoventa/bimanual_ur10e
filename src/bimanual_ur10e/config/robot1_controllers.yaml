@@ -103,6 +103,7 @@
       - robot1_wrist_1_joint
       - robot1_wrist_2_joint
       - robot1_wrist_3_joint
+    type: position_controllers/JointGroupPositionController
 
 /forward_effort_controller:
   ros__parameters:
@@ -118,6 +119,7 @@
 /io_and_status_controller:
   ros__parameters:
     tf_prefix: robot1_
+    type: ur_controllers/GPIOController
 
 /speed_scaling_state_broadcaster:
   ros__parameters:

@@ -114,10 +114,14 @@
       - robot2_wrist_2_joint
       - robot2_wrist_3_joint
     interface_name: effort
+    type: position_controllers/JointGroupPositionController
+
 
 /io_and_status_controller:
   ros__parameters:
     tf_prefix: robot2_
+    type: ur_controllers/GPIOController
+
 
 /speed_scaling_state_broadcaster:
   ros__parameters:
