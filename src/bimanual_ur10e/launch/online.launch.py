@@ -325,7 +325,7 @@ def launch_setup(context, *args, **kwargs):
         package="tf2_ros",
         executable="static_transform_publisher",
         name="static_camera_tf_publisher",
-        arguments=["0.4", "-0.1", "1.2", "1.571", "1.571", "3.14", "world", "camera_link"],
+        arguments=["0.4", "0.35", "1.2", "1.571", "2.094", "3.14", "world", "camera_link"],
         output="screen",
     )
 
